@@ -1,0 +1,48 @@
+ XBOX Mappings:
+
+	A - Assist/Manual toggle 
+		~ 1 click -> Assist
+		~ 1 second hold -> Manual
+	B - Holding pattern toggle
+*	X - Throttle Lock
+	Y - Emergency Recover
+
+
+*	LB - Rudder left (5 degrees)
+*	RB - Rudder right (5 degrees)
+	LT - 
+	RT - Throttle actuator
+
+
+	D-pad:
+	UP    - PID Calibration toggle
+	DOWN  - 
+	LEFT  - 
+	RIGHT - 
+
+		
+	RS (X,Y) - (Aileron, Flaps/Spoilers)
+	LS (X,Y) - (Rudder, Elevator)
+	RS (click) - Holding pattern toggle
+	LS (click) - Throttle Lock toggle
+
+
+	Start  - Pair ATC & Plane
+	Back   - Capture Runway
+	Home   - Return home (light flashes)
+
+
+
+Combinations:
+
+	Start + Back  -  Flight toggle
+
+	
+	(While holding pattern active)
+	A - Auto/Assist toggle
+		~ 5 second hold -> Auto
+		~ 1 second hold -> Assist
+
+
+
+
