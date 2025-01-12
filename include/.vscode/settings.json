@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.embeddedhtml": "html",
-        "atomic": "cpp"
+        "atomic": "cpp",
+        "cstdint": "cpp"
     }
 }

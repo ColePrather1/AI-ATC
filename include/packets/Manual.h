@@ -1,52 +1,21 @@
 #ifndef MANUAL_H
 #define MANUAL_H
-
 #pragma once
-
-#include "Common.h"
-#include "Session.h"
 #include "Packet.h"
 
 
-//PacketType::
-
+// 12 Bytes
 class ManualPacket : public Packet {
 public:
-
-    //uint8_t* vals[NUM_FEATS];
-
     uint8_t throttle;
     uint8_t elevator;
     uint8_t rudder;
     uint8_t left_aileron;
     uint8_t right_aileron;
 
-    // Default constructor
-    ManualPacket() : Packet(PacketType::MANUAL) {
-        //std::memset(payload, 0, PAYLOAD_SIZE);
-    }
-
-    ManualPacket(char hdr, uint8_t* vals[NUM_FEATS]) : Packet(PacketType::MANUAL, hdr, 0) {
-        //std::memcpy(payload, pld, PAYLOAD_SIZE);
-        self.setPayload(vals);
-    }
-
-    ManualPacket(char hdr, uint8_t* vals[NUM_FEATS], uint32_t time) : Packet(PacketType::MANUAL, hdr, time) {
-        //std::memcpy(payload, pld, PAYLOAD_SIZE);
-        self.setPayload(vals);
-    }
-
-
-
-/*
-TODO: Implement processing
-*/
-    bool process() override {
-        // Implement processing
-        std::cout << "Processing Manual Packet" << std::endl;
-        
-        return true;
-    }
+    ManualPacket();
+    ManualPacket(char hdr, uint8_t throttle, uint8_t elevator, uint8_t rudder, uint8_t left_aileron, uint8_t right_aileron);
+    void process() override;
 
 };
 
@@ -157,39 +126,6 @@ TODO: Implement processing
 
 
 
-const char sample_mp_packet[PAYLOAD_SIZE] = {
-    SOH,        // Start of Header
-    'S',        // Packet type identifier (e.g., 'S' for Servo)
-    STX,        // Start of Text
-    '1',        // Servo 1 value (3 digits)
-    '2',
-    '3',
-    RECSEP,     // Record Separator
-    '4',        // Servo 2 value
-    '5',
-    '6',
-    RECSEP,
-    '7',        // Servo 3 value
-    '8',
-    '9',
-    RECSEP,
-    '0',        // Servo 4 value
-    '1',
-    '2',
-    RECSEP,
-    '3',        // Servo 5 value
-    '4',
-    '5',
-    ETX,        // End of Text
-    EOT,        // End of Transmission
-    //0x7F,       // Checksum (example value)
-    //NULL_CHAR,  // Padding
-    //NULL_CHAR,
-    //NULL_CHAR,
-    //NULL_CHAR,
-    //NULL_CHAR,
-    //NULL_CHAR
-};
 
 
 

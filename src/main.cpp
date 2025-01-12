@@ -4,10 +4,16 @@
 //#include "ThreadSafeQueue.h"
 //#include "QuickThread.h"
 
-#include "atc_threads.h"
 //#include "System.h"
 #include "atc.h"
 #include "Session.h"
+#include "Logging.h"
+#include <iostream>
+#include <cctype>
+//#include "../include/Session.h"
+
+
+#include "pi_ble.h"
 
 /*
 bool keyboard_quit(){
@@ -49,22 +55,49 @@ int main() {
 /*
     Program Initialization
 */
+
+    if (!Logging::startLogger()){    
+        std::cout << "Logging Thread failed to start" << std::endl; 
+        return 1;   
+    }
+    while(!Session::logger_running.load(std::memory_order_relaxed)){
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    Logging::insertEventLog(EventType::SYSTEM_STARTUP);
+    std::cout << "Logging Thread started" << std::endl;
+
+/*
+    // TODO: add ! after testing finished
     if (!rf_rx_thread.start()){
-        std::cerr << "RF24 RX Thread failed to start" << std::endl;
+        std::cout << "RF24 RX Thread failed to start" << std::endl;
         return 1;
     }
-    if (!rf_tx_thread.start()){
-        std::cerr << "RF24 TX Thread failed to start" << std::endl;
+    std::cout << "RF24 RX Thread started" << std::endl;
+
+    // TODO: add ! after testing finished
+    if (rf_tx_thread.start()){
+        std::cout << "RF24 TX Thread failed to start" << std::endl;
         return 1;
     }
+    std::cout << "RF24 TX Thread started" << std::endl;
+*/
+
+    enable_ble();
+    usleep(100000);
+
     if (!game_controller_thread.start()){
-        std::cerr << "Game Controller Thread failed to start" << std::endl;
+        std::cout << "Game Controller Thread failed to start" << std::endl;
         return 1;
     }
+    std::cout << "Game Controller Thread started" << std::endl;
+
+
+    /*
     if (!sql_thread.start()){
         std::cerr << "SQL Thread failed to start" << std::endl;    
         return 1;
     }
+    */
 
     //if (!comp_thread.start()){
     //    std::cerr << "Computation Thread failed to start" << std::endl;    
@@ -72,38 +105,31 @@ int main() {
     //}
 
 
-    while (!Session::quit_flag.load(std::memory_order_acquire)) {
-/*
-TODO: Implement Main loop
-*/
-
-        SDL_Event e;
-        while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
-                quit_flag.store(true, std::memory_order_release);
-            } 
-            else if (e.type == SDL_KEYDOWN) {       // delete for production, q input to stop app
-            switch (e.key.keysym.sym) {
-                case SDLK_q:
-                    quit_flag.store(true, std::memory_order_release);
-                    break;
-                // Add other key checks here
+    char input;
+    while (true){
+        if (std::cin.get(input)){
+            if (std::tolower(input) == 'q') {
+                std::cout << "Exiting..." << std::endl;
+                Session::quit_flag.store(true, std::memory_order_release);
+                //return 0;
+                break;
             }
-            }
-
         }
-
-        usleep(10000);
     }
 
-/*
-TODO: Implement shutdown procedure failsafe
-*/ 
-    if (!shutdown()){
-        std::cerr << "Shutdown failed" << std::endl;
+    // TODO: Use after finished dev testing
+    while (!Session::quit_flag.load(std::memory_order_acquire)) {
+        // TODO: Implement Main loop
+        std::cout << "Main Loop" << std::endl;
+    }
+
+
+    // TODO: Implement shutdown procedure failsafe
+    if (!ATC::atc_shutdown()){
+        std::cout << "Shutdown failed" << std::endl;
         return 1;
     }
-
+    std::cout << "Shutdown successful" << std::endl;
     return 0;
 }
 

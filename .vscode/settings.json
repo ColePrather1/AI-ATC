@@ -81,6 +81,8 @@
         "bitset": "cpp",
         "random": "cpp",
         "resumable": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "regex": "cpp",
+        "variant": "cpp"
     }
 }

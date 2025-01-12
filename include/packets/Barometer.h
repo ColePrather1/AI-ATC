@@ -1,20 +1,15 @@
+#ifndef BAROMETER_H
+#define BAROMETER_H
 #pragma once
-#include "common.h"
-#include "session.h"
+
 #include "Packet.h"
 
-
-
-
-
-struct IMUEnvPacket {
-
-    uint8_t id;
-
-    float pressure;
-    float temperature;
-    float baro_altitude;
-    float humidity;
-
+class BarometerPacket : public Packet {
+public:
+    int16_t pressure, temperature, baro_altitude;
+    BarometerPacket(int16_t pressure, int16_t temperature, int16_t baro_altitude);
+    void process() override;
 };
 
+
+#endif // BAROMETER_H

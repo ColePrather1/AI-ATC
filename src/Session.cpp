@@ -1,103 +1,59 @@
+
 #include "Session.h"
 
+//#include "../include/Session.h"
 
-//extern int p_rdr_val = -PRE_RX_THRESHOLD, p_alrn_l_val = -PRE_RX_THRESHOLD, p_alrn_r_val = -PRE_RX_THRESHOLD, p_elvr_val = -PRE_RX_THRESHOLD, p_thrt_val = -PRE_RX_THRESHOLD;
-//extern uint8_t servo_defaults[NUM_FEATS] = {0, 90, 90, 90, 90};
+/*
+namespace Session {
+// Initialize atomic variables
+std::atomic<bool> quit_flag(false);
+std::atomic<bool> logger_running(false);
+std::atomic<bool> logger_thread_active(false);
+//std::atomic<int16_t> right_x(0), right_y(0), left_x(0), left_y(0);
+std::atomic<uint16_t> atc_gps_alt(0);
+std::atomic<double> atc_gps_lat(0.0), atc_gps_lon(0.0);
+std::atomic<uint16_t> plane_gps_alt(0);
+std::atomic<double> plane_gps_lat(0.0), plane_gps_lon(0.0);
 
-//extern uint8_t* feat_vals[NUM_FEATS] = {&throttle_val, &elevator_val, &rudder_val, &aileron_left_val, &aileron_right_val};
-//extern uint8_t* feat_vals[NUM_FEATS] = {&throttle_val, &elevator_val, &rudder_val, &aileron_left_val, &aileron_right_val};
+std::atomic<uint8_t> rudder_val(0), aileron_left_val(0), aileron_right_val(0), elevator_val(0), throttle_val(0), throttle_lock_val(0);
+std::array<uint8_t, NUM_FEATS> servo_defaults = {0, 90, 90, 90, 90};
+std::array<std::atomic<uint8_t>*, NUM_FEATS> feat_vals = {&throttle_val, &elevator_val, &rudder_val, &aileron_left_val, &aileron_right_val};
 
-//std::array<std::atomic<uint8_t>*, NUM_FEATS> feat_vals ;
+std::atomic<ControlMode> control_mode(ControlMode::PAIRING);
+std::atomic<bool> throttle_lock(false), within_range(false), approaching_boundary(false), returning_home(false),
+                  isWaypointSet(false), isEnrouteToWaypoint(false), isCircleWaypoint(false),
+                  fixed_altitude(false), fixed_heading(false), fixed_speed(false),
+                  imu_active(false), imu_fail(false), isFlying(false), airplane_gps_active(false),
+                  airplane_gps_fail(false), atc_gps_active(false), atc_gps_fail(false),
+                  engine_active(false), engine_fail(false), engine_stall(false), isMotorSpinning(false);
 
-//std::atomic<uint8_t>* 
+std::atomic<FlightPhase> airplane_active_flight_phase(FlightPhase::GROUNDED);
 
+std::atomic<uint16_t> airplane_current_gps_heading(0), airplane_current_gps_speed(0);
+std::atomic<std::chrono::steady_clock::time_point> flightStartTime;
+std::atomic<uint16_t> fixed_plane_heading(0), fixed_plane_speed(0), fixed_plane_altitude(0);
+std::atomic<uint32_t> waypoint_lat(0), waypoint_lon(0), waypoint_alt(0);
+std::atomic<uint16_t> atc_pilot_distance_meters(0);
+std::atomic<uint32_t> atc_pilot_distance_meters_squared(0);
 
+std::atomic<TypeLevel> plane_altitude_level(TypeLevel::NORMAL), plane_pitch_level(TypeLevel::NORMAL), plane_air_speed_level(TypeLevel::NORMAL);
+std::atomic<RollLevel> plane_roll_level(RollLevel::LEVEL);
 
+std::atomic<bool> paired(false), ctlr_paired(false), ctlr_active(false);
+std::atomic<int> rf_tx_active_pipe(0);
+std::atomic<bool> rf_rx_active(false), rf_tx_active(false);
 
-// Mutex for protecting access to complex data structures
-//extern std::mutex session_mutex;
-
-//Session::rudder_val.store(68, std::memory_order_release);
+} // namespace Session
+*/
 
 /*
     TODO: Initialize SQL db events_log with base statuses for each type of event/status
 */
 
+/*
 void Session::initialize(){
-
-    // Controller Parameters
-    //extern std::atomic<int16_t> right_x, right_y, left_x, left_y;
-
-    // Plane Parameters
-    rudder_val = 0;
-    throttle_val = 0;
-    elevator_val = 0;
-    Session::aileron_left_val = 0;
-    Session::aileron_right_val = 0;
-    //rudder_val.store(68, std::memory_order_release);
-
-
-    //Session::servo_defaults = {0, 90, 90, 90, 90};
-
-    Session::feat_vals = {&throttle_val, &elevator_val, &rudder_val, &aileron_left_val, &aileron_right_val};
-    //Session::feat_vals.store({&throttle_val, &elevator_val, &rudder_val, &aileron_left_val, &aileron_right_val}, std::memory_order_release);
-    //Session::feat_vals
-
-
-    // Flight Parameters
-    //Session::within_range = false;
-    Session::within_range.store(false, std::memory_order_release);
- 
-    // User HUD Parameters
-    //Session::quit_flag = false;
-    //Session::control_mode = ControlMode::ASSIST;
-    //Session::throttle_lock = false; 
-    //Session::holding_pattern = false;
-    //Session::gps_active = false;
-    //Session::paired = false;
-    //Session::taxi_only = true;
-    //Session::ctlr_mode = false;
-
-    Session::quit_flag.store(false, std::memory_order_release);
-    Session::control_mode.store(ControlMode::ASSIST, std::memory_order_release);
-    Session::throttle_lock.store(false, std::memory_order_release);
-    Session::holding_pattern.store(false, std::memory_order_release);
-    Session::gps_active.store(false, std::memory_order_release);
-    Session::paired.store(false, std::memory_order_release);
-    Session::taxi_only.store(true, std::memory_order_release);
-    Session::ctlr_paired.store(false, std::memory_order_release);
-    Session::flying.store(false, std::memory_order_release);
-
-
-
-    // Radio Parameters
-    //Session::rf_tx_active_pipe = 0;
-    //Session::rf_rx_active = false;
-    //Session::rf_tx_active = false;
-
-    Session::rf_tx_active_pipe.store(0, std::memory_order_release);
-    Session::rf_rx_active.store(false, std::memory_order_release);
-    Session::rf_tx_active.store(false, std::memory_order_release);
-
+    quit_flag = false;
+    logger_running = false;
+    logger_thread_active = false;
 }
-
-
-void Session::complex_operation()
-{
-    std::lock_guard<std::mutex> lock(Session::session_mutex);
-    //std::lock_guard<std::mutex> lock(session_mutex);
-    // Perform complex operations here
-}
-
-
-void write_to_mutex() {
-    //std::lock_guard<std::mutex> lock(Session::session_mutex);
-    Session::rudder_val.store(68, std::memory_order_release);
-    // Perform operations that require the mutex here
-}
-
-void read_from_mutex() {
-    std::lock_guard<std::mutex> lock(Session::session_mutex);
-    // Perform operations that require the mutex here
-}
-
+*/

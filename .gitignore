@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Database files
+*.db
+
+# Junk Folders
+0CMakeList.txt
+1CMakeLists.txt
+
+

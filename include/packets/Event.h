@@ -3,38 +3,16 @@
 
 #pragma once
 
-//#include "Common.h"
-//#include "Session.h"
-
+#include "EventTypes.h"
 #include "Packet.h"
 
-//#include "Bitmask.h"
-
-#include "../src/EventTypes.h"
-
-
+// 9 bytes
 class EventPacket : public Packet {                 // System packet
-
-    uint8_t event_type; // 6 bits
-    uint8_t agree;      // 1 bit
-
-
-
-    //Bitmask payload;      // Bitmask payload
-
-
-    //std::chrono::system_clock::time_point timestamp;
-    //char header;
-    //std::array<char, 31> payload; 
-    //char payload[16];
-
-    //Bitmask payload;
-
-    //std::timestamp time;
-    // Add other relevant data fields
-
-
-
+public:
+    EventType event_type;
+    EventPacket(char hdr, EventType event_type);
+    void process() override;
 };
+
 
 #endif // EVENT_H

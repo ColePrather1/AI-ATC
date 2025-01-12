@@ -1,7 +1,7 @@
 #ifndef PACKET_H
 #define PACKET_H
-
 #pragma once
+#pragma pack(push, 1)
 #include <cstdint>
 
 //#include "common.h"
@@ -20,10 +20,11 @@
 enum class PacketType : uint8_t {
     BASE,
     // System Data
-    SYSTEM,
-    STATUS,
+    //SYSTEM,
+    //STATUS,
+    PID,
     // Pairing
-    PAIRING,
+    //PAIRING,
     // Control Modes
     AUTO,
     ASSIST,
@@ -42,79 +43,40 @@ enum class PacketType : uint8_t {
     //GESTURE_PACKET,       // APDS9960
     //LIDAR_PACKET,         // TF-Luna
     // Acknowledgement
-    ACK
+    //ACK,
+    EVENT,
+    //EVENT_DATA,
+    EVENT_DATA8,
+    EVENT_DATA16,
+    EVENT_DATA32,
+    EVENT_DATA64,
+    EVENT_TIMED,
+    EVENT_TIMED_DATA
 };
 
 
 
-
-
+// 2 bytes  // 8 bytes with process()
 class Packet {
 public:
-
-    //PacketType::PacketType type;
-
-    // 2^4 = 16
-
     PacketType type;
-
-    //std::chrono::system_clock::time_point timestamp;
-    //uint32_t timestamp;
-    
     char header;
-    //void* payload;
-
-    //virtual char[PAYLOAD_SIZE] payload;
-    //virtual char payload[PAYLOAD_SIZE] = {0};
-
-
-    //char getHeader() const { return header; }
-    //void setHeader(char hdr) { header = hdr; }
-    //PacketType getType() const { return type; }
-    //std::chrono::system_clock::time_point getTimestamp() const { return timestamp; }
 
 
 
-    //Packet(PacketType t) : type(t), timestamp(std::chrono::system_clock::now()) {}
-
-/*
-Getters & Setters
-*/
-    char getHeader() const { return header; }
-    void setHeader(char hdr) { header = hdr; }
-
-
-/*  
-Constructors
-*/
-    // Default Constructor
-    //Packet() : type(PacketType::BASE), header(0), timestamp(0) {}
     Packet() : type(PacketType::BASE), header(0) {}
-    // Type-only Constructor
-    //Packet(PacketType t) : type(t), header(0), timestamp(0) {}
-    // Type, Header, Time Constructor
-    //Packet(PacketType t, char hdr, uint32_t& time) : type(t), header(hdr), timestamp(time) {}
     Packet(PacketType t, char hdr) : type(t), header(hdr) {}
-
-
-
-/*
-Destructors / Virtual
-*/
     virtual ~Packet() = default;
 
-    virtual char* getPayload() = 0;
-    virtual const char* getPayload() const = 0;
-    virtual void setPayload(const void* data) = 0;
-    virtual bool process() = 0;
+
+
+    virtual void process() = 0;
 
 
     //virtual void serialize(char* buffer) const = 0;     // Encode
     //virtual void deserialize(const char* buffer) = 0;   // Decode
-    //virtual void encode(char* buffer) const = 0;     // Encode
-    //virtual void decode(const char* buffer) = 0;   // Decode
-
 };
+ // } __attribute__((packed));
 
 
 
@@ -141,5 +103,5 @@ enum PacketType {
 };
 */
 
-
+#pragma pack(pop)
 #endif // PACKET_H

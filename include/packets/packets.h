@@ -1,21 +1,11 @@
 #ifndef PACKETS_H
 #define PACKETS_H
-
 #pragma once
-
-//#include "Common.h"
-//#include "Session.h"
-#include <chrono>
-
 
 #include "Packet.h"
 
-#include "Pairing.h"
-#include "Status.h"
-#include "System.h"
-#include "Log.h"
+
 #include "PID.h"
-//#include "Emergency.h"
 
 #include "Manual.h"
 #include "Auto.h"
@@ -32,14 +22,31 @@
 #include "Barometer.h"
 #include "Temp-Humid.h"
 
+#include "Event.h"
+#include "EventData8.h"
+#include "EventData16.h"
+#include "EventData32.h"
+#include "EventData64.h"
+#include "EventTimed.h"
+#include "EventTimedData.h"
 
 
-int getPipe(const Packet& packet) {
-    switch (packet.type) {
-        case PacketType::SYSTEM:
-        case PacketType::STATUS:
-        case PacketType::PAIRING:
-        case PacketType::ACK:
+//inline int getPipe(Packet* packet);
+
+inline int getPipe(Packet* packet) {
+    //PacketType type = packet->type;
+    switch (packet->type) {
+        //case PacketType::SYSTEM:
+        //case PacketType::STATUS:
+        //case PacketType::PAIRING:
+        //case PacketType::ACK:
+        case PacketType::EVENT:
+        case PacketType::EVENT_DATA8:
+        case PacketType::EVENT_DATA16:
+        case PacketType::EVENT_DATA32:
+        case PacketType::EVENT_DATA64:
+        case PacketType::EVENT_TIMED:
+        //case PacketType::EVENT_TIMED_DATA:
             return 0;
 
         case PacketType::AUTO:
@@ -71,46 +78,8 @@ int getPipe(const Packet& packet) {
 
 
 
-
-
-
-/*
-struct ManualPacket {
-  //std::chrono::system_clock::time_point time;
-  char header;
-  char payload[PAYLOAD_SIZE];
-
-  // constructor for 2 inputs header and payload
-  //ManualPacket(char hdr, char pld[PAYLOAD_SIZE]) : header(hdr), payload(pld) {}
-
-    // Default constructor
-    ManualPacket() : header(0) {
-        std::memset(payload, 0, PAYLOAD_SIZE);
-    }
-
-    // Constructor
-    ManualPacket(char hdr, const char* pld) : header(hdr) {
-        std::memcpy(payload, pld, PAYLOAD_SIZE);
-    }
-
-    ManualPacket(ManualPacket&& other) noexcept 
-        : header(other.header) {
-        std::memcpy(payload, other.payload, PAYLOAD_SIZE);
-    }
-
-
-    inline char getHeader() const { return header; }
-    inline void setHeader(char hdr) { header = hdr; }
-
-
-    const char* getPayload() const { return payload; }
-    void setPayload(const char* pld) {
-        std::memcpy(payload, pld, PAYLOAD_SIZE);
-    }
-
-};
-
-*/
-
-
 #endif // PACKETS_H
+
+
+
+
