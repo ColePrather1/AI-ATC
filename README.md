@@ -50,3 +50,44 @@ connect 7C:66:EF:28:79:D0
 
 
 ////////////////////////////////////////
+
+## Initial setup
+
+
+## Bluetoothctl controller Auto-connect
+  1) Create .sh script file
+    sudo nano /usr/local/bin/bt-autoconnect.sh
+
+  2) Allow execution rights of .sh script
+    sudo chmod +x /usr/local/bin/bt-autoconnect.sh
+
+  3) Create a new Systemd .service file
+    sudo nano /etc/systemd/system/bt-autoconnect.service
+CONTENT_START:
+[Unit]
+Description=Bluetooth Controller Auto-connect
+After=bluetooth.service
+Wants=bluetooth.service
+
+[Service]
+ExecStart=/usr/local/bin/bt-autoconnect.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+CONTENT_END:        
+    
+      
+
+  5) Enable the service
+    
+
+## Compiling
+
+
+## Executing
+
+
+
+
+
