@@ -52,7 +52,7 @@ connect 7C:66:EF:28:79:D0
 ////////////////////////////////////////
 
 ## Install
-git clone https://github.com/ColePrather1/AI-ATC.git
+       git clone https://github.com/ColePrather1/AI-ATC.git
 
 ## Initial setup
 
