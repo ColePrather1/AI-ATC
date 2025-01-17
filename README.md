@@ -50,3 +50,31 @@ connect 7C:66:EF:28:79:D0
 
 
 ////////////////////////////////////////
+
+## Install
+       git clone https://github.com/ColePrather1/AI-ATC.git
+
+## Initial setup
+
+
+## Bluetoothctl controller Auto-connect
+
+####  1) Allow execution rights of .sh script
+       chmod +x bt-setup.sh
+####  3) Run with sudo
+       sudo ./bt-setup.sh
+####  4) Reboot to take affect
+       sudo reboot
+    
+
+## Compiling
+       mkdir build && cd build
+       cmake ..
+       make
+
+## Executing
+       ./bin/AI-ATC
+
+
+
+
