@@ -58,7 +58,7 @@ connect 7C:66:EF:28:79:D0
 
 ####  1) Allow execution rights of .sh script
        chmod +x bt-setupt.sh
-###  2) Create a new Systemd .service file
+####  2) Create a new Systemd .service file
       sudo ./setup_autoconnect.sh
 ####  3) Run with sudo
       sudo ./setup_autoconnect.sh
@@ -67,10 +67,12 @@ connect 7C:66:EF:28:79:D0
     
 
 ## Compiling
-
+       mkdir build && cd build
+       cmake ..
+       make
 
 ## Executing
-
+       ./bin/AI-ATC
 
 
 
