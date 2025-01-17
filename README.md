@@ -60,13 +60,11 @@ connect 7C:66:EF:28:79:D0
 ## Bluetoothctl controller Auto-connect
 
 ####  1) Allow execution rights of .sh script
-       chmod +x bt-setupt.sh
-####  2) Create a new Systemd .service file
-      sudo ./setup_autoconnect.sh
+       chmod +x bt-setup.sh
 ####  3) Run with sudo
-      sudo ./setup_autoconnect.sh
+      sudo ./bt-setup.sh
 ####  4) Reboot to take affect
-      sudo reboot
+      #sudo reboot
     
 
 ## Compiling
