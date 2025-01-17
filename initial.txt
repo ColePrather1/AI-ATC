@@ -1,0 +1,2 @@
+sudo chmod +x initial.sh
+./initial.sh

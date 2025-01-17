@@ -229,6 +229,7 @@ void GameController::handleButtonCombinations(uint32_t& mask) {
 
 bool GameController::tryConnect(){
 
+    return true;
 }
 
 bool GameController::controller_setup() {
@@ -252,6 +253,10 @@ bool GameController::controller_setup() {
         std::cout << "Waiting for controller..." << std::endl;
         while(SDL_NumJoysticks() < 1){
             usleep(10000);
+            if (Session::quit_flag.load(std::memory_order_acquire)) {
+                return false;
+            }
+            std::cout << "Warning: No joysticks connected!" << std::endl;
             continue;
             //std::cout << "Warning: No joysticks connected!" << std::endl;
             
@@ -297,7 +302,13 @@ bool GameController::controller_shutdown() {
         controller = nullptr;
     }
     SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
-    SDL_Quit();
+    //SDL_Quit();
+
+   // Check if any other SDL subsystems are still active
+    if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0) {
+        SDL_Quit();
+    }
+    std::cout << "Controller shutdown finished" << std::endl;
     return true;
 }
 
@@ -317,14 +328,14 @@ void GameController::handleEvents() {
                 break;
             case SDL_CONTROLLERDEVICEADDED:
                 if (!controller) {
-                    controller = SDL_GameControllerOpen(event.cdevice.which);
+                    controller = SDL_GameControllerOpen(e.cdevice.which);
                     if (controller) {
                         std::cout << "Controller connected" << std::endl;
                     }
                 }
                 break;
             case SDL_CONTROLLERDEVICEREMOVED:
-                if (controller && event.cdevice.which == SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller))) {
+                if (controller && e.cdevice.which == SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller))) {
                     SDL_GameControllerClose(controller);
                     controller = nullptr;
                     std::cout << "Controller disconnected" << std::endl;
@@ -349,7 +360,7 @@ void GameController::handleEvents() {
         SDL_Delay(100);  // Avoid busy-waiting
     }
 
-    return false;
+    return;
 }
 
 /*

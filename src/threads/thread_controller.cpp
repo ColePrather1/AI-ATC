@@ -57,4 +57,4 @@ static void game_controller_loop(){
 
 //extern QuickThread game_controller_thread(game_controller_setup, game_controller_loop);
 
-QuickThread game_controller_thread(game_controller_setup, game_controller_loop);
+extern QuickThread game_controller_thread(game_controller_setup, game_controller_loop);

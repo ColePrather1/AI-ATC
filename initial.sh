@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#CONTROLLER_MAC_ADDRESS = "7C:66:EF:28:79:D0"
+set-alias 7C:66:EF:28:79:D0 DualSense
+
+
 set -e
 
 # Function to check if a command exists
@@ -54,14 +58,18 @@ else
     echo "raspi-config not found. Please enable SPI manually."
 fi
 
+
 # Configure Bluetooth
-# Uncomment and modify the following lines to configure Bluetooth
-# echo "Configuring Bluetooth..."
-# sudo bluetoothctl << EOF
-# agent on
-# default-agent
-# scan on
-# connect <MAC_ADDRESS>
-# EOF
+echo "Configuring Bluetooth..."
+sudo bluetoothctl << EOF
+power on
+agent on
+default-agent
+scan on
+pairable on
+pair DualSense
+connect DualSense
+trust DualSense
+EOF
 
 echo "Setup complete!"

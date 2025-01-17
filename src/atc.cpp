@@ -36,9 +36,9 @@ bool ATC::atc_shutdown(){
     //SDL_Quit();
 
 
-    if (!GameController::controller_shutdown()) {
-        std::cout << "Game Controller shutdown failed" << std::endl;
-    }
+    //if (!GameController::controller_shutdown()) {
+    //    std::cout << "Game Controller shutdown failed" << std::endl;
+    //}
     
     /*
     // If all threads are joinable, join them
@@ -55,23 +55,28 @@ bool ATC::atc_shutdown(){
    if (rf_rx_thread.joinable()) { 
        rf_rx_thread.stop();
    }
+   std::cout << "rf_rx_thread stopped" << std::endl;
 
    if (rf_tx_thread.joinable()) { 
        rf_tx_thread.stop();
    }
+   std::cout << "rf_tx_thread stopped" << std::endl;
 
    if (packet_process_thread.joinable()) {
        packet_process_thread.stop();
    }
+   std::cout << "packet_process_thread stopped" << std::endl;
 
    if (game_controller_thread.joinable()) {
         GameController::controller_shutdown();
         game_controller_thread.stop();
    }
+   std::cout << "game_controller_thread stopped" << std::endl;
 
 
     Logging::insertEventLog(EventType::SYSTEM_SHUTDOWN);
     Logging::stopLogger();
+    std::cout << "Logging Thread stopped" << std::endl;
 
     /*
     if (!Logging::stopLogger()) {

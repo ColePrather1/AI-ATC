@@ -82,8 +82,8 @@ int main() {
     std::cout << "RF24 TX Thread started" << std::endl;
 */
 
-    enable_ble();
-    usleep(100000);
+    //enable_ble();
+    //usleep(100000);
 
     if (!game_controller_thread.start()){
         std::cout << "Game Controller Thread failed to start" << std::endl;
