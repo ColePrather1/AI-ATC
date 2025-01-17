@@ -63,7 +63,7 @@ connect 7C:66:EF:28:79:D0
 
   3) Create a new Systemd .service file
     sudo nano /etc/systemd/system/bt-autoconnect.service
-CONTENT_START:
+FILE_CONTENT_START:
 [Unit]
 Description=Bluetooth Controller Auto-connect
 After=bluetooth.service
@@ -75,7 +75,7 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
-CONTENT_END:        
+FILE_CONTENT_END:        
     
       
 
