@@ -1,0 +1,13 @@
+[Unit]
+Description=Bluetooth Controller Auto-connect
+After=bluetooth.service
+Wants=bluetooth.service
+
+[Service]
+ExecStart=/usr/local/bin/bt-autoconnect.sh
+Restart=always
+RestartSec=10
+User=root
+
+[Install]
+WantedBy=multi-user.target

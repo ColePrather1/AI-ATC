@@ -11,13 +11,14 @@
 #include "CommonTools.h"
 #include <iostream>
 
+#include <cstdint>
 
-void ManualControlMode::manualMode() {
+void ManualControlMode::manualMode(uint32_t mask) {
 
     // Sticks & Triggers
     manual_send_features();
     // Buttons 
-    handleManualButtonCombinations();
+    handleManualButtonCombinations(mask);
     // System checks to act on buttons
 
 }
@@ -42,16 +43,16 @@ void ManualControlMode::manual_send_features() {
         //aileron_val_left_read = static_cast<uint8_t>(constrain(aileron_left + flap_deployment, 0, 180));       // Left Flaperon
         //aileron_val_right_read = static_cast<uint8_t>(constrain(aileron_right + flap_deployment, 0, 180));       // Right Flaperon       
 
-        throttle_val_read = (common_map(SDL_GameControllerGetAxis(GameController::controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT), -511, 512, 0, 180));           // Throttle
-        elevator_val_read = (common_map(SDL_GameControllerGetAxis(GameController::controller, SDL_CONTROLLER_AXIS_LEFTY), -511, 512, 0, 180));           // Elevator
-        rudder_val_read = (common_map(SDL_GameControllerGetAxis(GameController::controller, SDL_CONTROLLER_AXIS_LEFTX), -511, 512, 0, 180)); 
+        throttle_val_read = (common_map(SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT), -511, 512, 0, 180));           // Throttle
+        elevator_val_read = (common_map(SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_LEFTY), -511, 512, 0, 180));           // Elevator
+        rudder_val_read = (common_map(SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_LEFTX), -511, 512, 0, 180)); 
 
 
         //aileron_val_left_read = map(SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX), -511, 512, 0, 180);           // Left Aileron
         //aileron_val_right_read = map(SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX), -511, 512, 0, 180);           // Right Aileron
 
-        uint8_t right_x = (GameController::controller, SDL_CONTROLLER_AXIS_RIGHTX);   // Roll 
-        uint8_t right_y = (GameController::controller, SDL_CONTROLLER_AXIS_RIGHTY);   // Flap / Slat
+        uint8_t right_x = (globalGameController.controller, SDL_CONTROLLER_AXIS_RIGHTX);   // Roll 
+        uint8_t right_y = (globalGameController.controller, SDL_CONTROLLER_AXIS_RIGHTY);   // Flap / Slat
         uint8_t aileron_left = (common_map(right_x, -512, 512, 0, 180));
         uint8_t aileron_right = (common_map(right_x, -512, 512, 180, 0));
         uint8_t flap_deployment = (common_map(right_y, -512, 512, 0, 180));
@@ -91,8 +92,8 @@ void ManualControlMode::manual_send_features() {
 TODO:    (Manual) Processes bitmask of pressed buttons
 */
 // uint32_t& mask
-void ManualControlMode::handleManualButtonCombinations() {
-    switch (GameController::buttonMask) {
+void ManualControlMode::handleManualButtonCombinations(uint32_t mask) {
+    switch (mask) {
 
         // (A)
         // Assist/Manual toggle

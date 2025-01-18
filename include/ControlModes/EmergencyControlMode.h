@@ -1,10 +1,11 @@
 #ifndef EMERGENCYCONTROLMODE_H
 #define EMERGENCYCONTROLMODE_H
+#include <cstdint>
 
 namespace EmergencyControlMode {
 
-    extern void emergencyMode();
-    extern void emergency_send_btns();
+    extern void emergencyMode(uint32_t mask);
+    extern void emergency_send_btns(uint32_t mask);
     extern void emergency_send_features();
 
 }

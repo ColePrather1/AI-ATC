@@ -1,10 +1,14 @@
+#include <iostream>
+#include <thread>
+#include <chrono>
+
 #include "atc.h"
 
 
 #include "Common.h"
 #include "Session.h"
 #include "Logging.h"
-#include <iostream>
+
 
 //#include "threads/atc_threads.h"
 #include "GameController.h"
@@ -22,6 +26,52 @@ bool ATC::pair_pilot(){
     return 1;
 }
 
+
+// returns true on success
+bool ATC::atc_startup(){
+
+    // Logging
+    if (!Logging::startLogger()){    
+        std::cout << "Logging Thread failed to start" << std::endl; 
+        return false;   
+    }
+    while(!Session::logger_running.load(std::memory_order_relaxed)){
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    Logging::insertEventLog(EventType::SYSTEM_STARTUP);
+    std::cout << "Logging Thread started" << std::endl;    
+
+
+    // GameController
+    if (!globalGameController.start()){
+        std::cout << "globalGameController failed to start" << std::endl;
+        return false;
+    }
+    std::cout << "globalGameController started." << std::endl;
+
+
+    /*
+    // TODO: add ! after testing finished
+    if (!rf_rx_thread.start()){
+        std::cout << "RF24 RX Thread failed to start" << std::endl;
+        return false;
+    }
+    std::cout << "RF24 RX Thread started" << std::endl;
+
+    // TODO: add ! after testing finished
+    if (rf_tx_thread.start()){
+        std::cout << "RF24 TX Thread failed to start" << std::endl;
+        return false;
+    }
+    std::cout << "RF24 TX Thread started" << std::endl;
+    */
+
+    return true;
+}
+
+
+
+
 /*
 TODO: Implement ATC, Plane & GameController Shutdown
 
@@ -33,6 +83,7 @@ bool ATC::atc_shutdown(){
         std::cout << "Cannot shutdown while in flight" << std::endl;
         return 0;
     }
+    Session::atc_shtdwn.store(true, std::memory_order_release);
     //SDL_GameControllerClose(controller);
     //SDL_Quit();
 
@@ -53,31 +104,56 @@ bool ATC::atc_shutdown(){
 
     */
 
+   Session::rf_rx_shtdwn.store(true, std::memory_order_release);
    if (rf_rx_thread.joinable()) { 
        rf_rx_thread.stop();
    }
    std::cout << "rf_rx_thread stopped" << std::endl;
+   Session::rf_rx_shtdwn.store(false, std::memory_order_release);
+   Session::rf_rx_finished.store(true, std::memory_order_release);
 
+
+   Session::rf_tx_shtdwn.store(true, std::memory_order_release);
    if (rf_tx_thread.joinable()) { 
        rf_tx_thread.stop();
    }
    std::cout << "rf_tx_thread stopped" << std::endl;
+   Session::rf_tx_shtdwn.store(false, std::memory_order_release);
+   Session::rf_tx_finished.store(true, std::memory_order_release);
 
+
+   Session::computer_shtdwn.store(true, std::memory_order_release);
    if (packet_process_thread.joinable()) {
        packet_process_thread.stop();
    }
    std::cout << "packet_process_thread stopped" << std::endl;
+   Session::computer_shtdwn.store(false, std::memory_order_release);
+   Session::computer_finished.store(true, std::memory_order_release);
 
-   if (game_controller_thread.joinable()) {
-        GameController::controller_shutdown();
-        game_controller_thread.stop();
+
+   Session::ctlr_shtdwn.store(true, std::memory_order_release);
+   if (!globalGameController.stop()) {
+        std::cout << "Game Controller shutdown failed" << std::endl;
+        //GameController::controller_shutdown();
+        //game_controller_thread.stop();
    }
-   std::cout << "game_controller_thread stopped" << std::endl;
+   std::cout << "globalGameController stopped" << std::endl;
+   Session::ctlr_shtdwn.store(false, std::memory_order_release);
+   Session::ctlr_finished.store(true, std::memory_order_release);
 
+
+   //if (game_controller_thread.joinable()) {
+   //     GameController::controller_shutdown();
+   //     game_controller_thread.stop();
+   //}
+   //std::cout << "game_controller_thread stopped" << std::endl;
 
     Logging::insertEventLog(EventType::SYSTEM_SHUTDOWN);
+    Session::logger_shtdwn.store(true, std::memory_order_release);
     Logging::stopLogger();
     std::cout << "Logging Thread stopped" << std::endl;
+    Session::logger_shtdwn.store(false, std::memory_order_release);
+    Session::logger_finished.store(true, std::memory_order_release);
 
     /*
     if (!Logging::stopLogger()) {
@@ -85,6 +161,8 @@ bool ATC::atc_shutdown(){
     }
     */
 
+    Session::atc_shtdwn.store(false, std::memory_order_release);
+    Session::atc_finished.store(true, std::memory_order_release);
     std::cout << "ATC Shutting down..." << std::endl;
     return 1;
 

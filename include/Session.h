@@ -38,17 +38,28 @@ inline namespace Session {
     inline std::atomic<bool> logger_running {false}, logger_thread_active {false};
 
 // Thread Loop Active
+    //inline std::atomic<bool> atc_loop_active {false};
     inline std::atomic<bool> ctlr_loop_active {false};
     inline std::atomic<bool> logger_loop_active {false};
     inline std::atomic<bool> rf_rx_loop_active {false};
     inline std::atomic<bool> rf_tx_loop_active {false};
+    inline std::atomic<bool> computer_loop_active {false};
 
 // Thread Shutdown In-Progress
+    inline std::atomic<bool> atc_shtdwn {false};    // True when at least one of the below is true
     inline std::atomic<bool> ctlr_shtdwn {false};
     inline std::atomic<bool> logger_shtdwn {false};
     inline std::atomic<bool> rf_rx_shtdwn {false};
     inline std::atomic<bool> rf_tx_shtdwn {false};
     inline std::atomic<bool> computer_shtdwn {false};
+
+// Thread Finished Flag
+    inline std::atomic<bool> atc_finished {false};
+    inline std::atomic<bool> ctlr_finished {false};
+    inline std::atomic<bool> logger_finished {false};
+    inline std::atomic<bool> rf_rx_finished {false};
+    inline std::atomic<bool> rf_tx_finished {false};
+    inline std::atomic<bool> computer_finished {false};
 
 
 // Controller Parameters

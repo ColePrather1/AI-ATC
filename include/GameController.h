@@ -4,6 +4,7 @@
 
 #include <SDL2/SDL.h>
 #include <cstdint>
+#include <thread>
 //#include "atc.h"
 //#include "atc_rf.h"
 //#include <atomic>
@@ -27,7 +28,41 @@
 #define BTN_TOUCHPAD (1 << 13)
 #define BTN_MUTE     (1 << 14)
 
-namespace GameController {
+
+class GameController {
+public:
+
+    uint8_t controller_id;
+    SDL_GameController* controller;
+    //uint32_t buttonMask;
+    std::thread controller_thread;
+
+
+    bool start();
+    bool stop();
+    bool setup();
+    void loop();
+
+    uint32_t getButtonCombinationMask();
+    //uint32_t getButtonCombinationMask();
+    //void handleButtonCombinations(uint32_t& mask);
+    bool controller_setup();
+    //bool tryConnect();
+    bool waitForConnection();
+    void handleEvents();
+    bool controller_shutdown();
+
+    GameController() {}
+    GameController(uint8_t controller_id) {
+        this->controller_id = controller_id;
+    }
+    ~GameController() {}
+};
+
+inline GameController globalGameController{static_cast<uint8_t>(0)};
+
+//extern GameController& getGlobalGameController();
+namespace OLD_GameController {
 
     inline SDL_GameController* controller;
     inline uint32_t buttonMask;

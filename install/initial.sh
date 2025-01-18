@@ -3,6 +3,12 @@
 #CONTROLLER_MAC_ADDRESS = "7C:66:EF:28:79:D0"
 #set-alias 7C:66:EF:28:79:D0 DualSense
 
+# Ensure script is run with sudo
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root (use sudo)"
+  exit 1
+fi
+
 
 set -e
 
@@ -33,6 +39,7 @@ sudo apt install -y build-essential cmake git
 install_package "sqlite3"
 install_package "libsqlite3-dev"
 install_package "libsdl2-dev"
+#install_package ""
 
 # Install RF24 library
 if [ ! -d "/usr/local/include/RF24" ]; then
@@ -60,16 +67,8 @@ fi
 
 
 # Configure Bluetooth
-echo "Configuring Bluetooth..."
-sudo bluetoothctl << EOF
-power on
-agent on
-default-agent
-scan on
-pairable on
-#pair DualSense
-#connect DualSense
-#trust DualSense
-EOF
+chmod +x bt-setup.sh
+sudo ./bt-setup.sh
+
 
 echo "Setup complete!"

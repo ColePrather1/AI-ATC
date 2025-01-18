@@ -18,7 +18,7 @@ private:
     std::function<void()> loop;
 
     //std::atomic<bool> running;
-    mutable std::atomic_bool running;
+    mutable std::atomic_bool running{false};
     std::thread thread;
 
     //std::unique_ptr<ThreadSafeQueue<void>> queue;
@@ -32,6 +32,7 @@ private:
 
     void run() {
         if (setup()) {
+            running.store(true, std::memory_order_release);
             while (running.load(std::memory_order_acquire)) {
                 loop();
                 //std::this_thread::sleep_for(std::chrono::microseconds(10));
@@ -82,14 +83,14 @@ public:
 */
 
     QuickThread(std::function<bool()> setup_function, std::function<void()> loop_function)
-        : setup(std::move(setup_function)), loop(std::move(loop_function)), running(false) {}
+        : setup(std::move(setup_function)), loop(std::move(loop_function)) {}
 
     ~QuickThread() {
         stop();
     }
 
     bool start() {
-        if (!running.exchange(true)) {
+        if (!running.load(std::memory_order_acquire)) {
             try {
                 //thread = std::thread(&QuickThread::run, this);
                 //thread = std::thread(&QuickThread::run, this);

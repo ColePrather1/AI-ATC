@@ -4,18 +4,20 @@
 #include "RadioTx.h"
 #include "CommonTools.h"
 
+#include <cstdint>
+
 /*
 TODO: Test Right X-Y Methods with wings attached
 */
 
 
-void AssistControlMode::assistMode() {
+void AssistControlMode::assistMode(uint32_t mask) {
 
     // Sticks & Triggers
     assist_send_features();
 
     // Buttons 
-    assist_send_btns();
+    assist_send_btns(mask);
 
     // System checks to act on buttons
 
@@ -23,5 +25,5 @@ void AssistControlMode::assistMode() {
 
 
 void AssistControlMode::assist_send_features() {}
-void AssistControlMode::assist_send_btns() {}
+void AssistControlMode::assist_send_btns(uint32_t mask) {}
 

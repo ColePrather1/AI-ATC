@@ -22,6 +22,9 @@ namespace ATC {
     // Returns 1 if PILOT is within ATC_RADIUS_METERS (uses GPS coordinates)
     //bool within_range();
     bool pair_pilot();
+
+    bool atc_startup();
+
     bool atc_shutdown();        // returns 1 if successful
 
 

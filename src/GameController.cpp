@@ -1,13 +1,13 @@
-
-#include "GameController.h"
-#include "Common.h"
-#include "Session.h"
 #include <iostream>
-
 #include <thread>
 #include <chrono>
-
 #include <SDL2/SDL.h>
+#include <cstdint>
+
+#include "GameController.h"
+#include "ControlModes/ControlModes.h"
+#include "Common.h"
+#include "Session.h"
 
 //#include "common.h"
 //#include "session.h"
@@ -64,9 +64,125 @@ void GameController::getButtonCombinationMask() {
 }
 */
 
-void GameController::getButtonCombinationMask() {
-    GameController::buttonMask = 0;
-    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A)) {
+
+//static GameController& getInstance() {
+//        static GameController instance;
+//        return instance;
+//}
+
+
+
+
+
+bool GameController::start() {
+
+    if (!setup()) {
+        return false;
+    }
+    std::cout << "GameController setup complete." << std::endl;
+    Session::ctlr_loop_active.store(true, std::memory_order_release);
+    controller_thread = std::thread(&GameController::loop, this);
+
+    return true;
+}
+
+bool GameController::stop() {
+    Session::ctlr_loop_active.store(false, std::memory_order_release);
+    if (controller_shutdown()) {
+        controller_thread.join();
+        return true;
+    }
+    return false;
+}
+
+bool GameController::setup() {
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
+    // Initialize controller
+    if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0) {       // SDL_INIT_JOYSTICK | 
+        std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
+    SDL_GameControllerEventState(SDL_ENABLE);
+
+
+    //controller = SDL_GameControllerOpen(0);
+    //if (controller == nullptr) {
+    //    return false;
+    //}
+    //return true;
+
+    if (waitForConnection()) {
+        std::cout << "Controller connected: " << SDL_GameControllerName(controller) << std::endl;
+    }
+    else {
+        std::cout << "Controller failed to connect. Ending program" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+void GameController::loop() {
+    while (Session::ctlr_loop_active.load(std::memory_order_acquire)) {
+        //std::cout << "GameController loop started" << std::endl;
+        ////if (Session::quit_flag.load(std::memory_order_acquire) && !Session::ctlr_shtdwn.load(std::memory_order_acquire)) {
+        ////    Session::ctlr_shtdwn.store(true, std::memory_order_release);
+        ////    //GameController::controller_shutdown();
+        ////    controller_shutdown();
+        ////    return;
+        ////}
+        //std::cout << "GameController loop active" << std::endl;
+
+        //GameController::handleEvents();
+        //
+
+        if (Session::ctlr_paired.load(std::memory_order_acquire)) {
+            //std::cout << "Controller paired" << std::endl;
+            //GameController::buttonMask = getButtonCombinationMask();
+            //GameController::getButtonCombinationMask();
+            uint32_t buttonMask = getButtonCombinationMask();
+            //std::cout << "GameController loop active" << std::endl;
+        // TODO: Create function pointer for each control mode to replace switch
+        // TODO: Create function pointer for each control mode to replace switch
+         switch (Session::control_mode.load(std::memory_order_acquire)) {
+             case ControlMode::MANUAL:
+                ManualControlMode::manualMode(buttonMask);
+                 break;
+             case ControlMode::ASSIST:
+                AssistControlMode::assistMode(buttonMask);
+                 break;
+             case ControlMode::AUTO:
+                AutoControlMode::autoMode(buttonMask);
+                 break;
+             case ControlMode::EMERGENCY:
+                EmergencyControlMode::emergencyMode(buttonMask);
+                 break;
+             case ControlMode::HOLDING:
+                HoldingControlMode::holdingMode(buttonMask);
+                 break;
+             case ControlMode::TAXI:
+                TaxiControlMode::taxiMode(buttonMask);
+                 break;
+             case ControlMode::PAIRING:
+                PairingControlMode::pairingMode(buttonMask);
+                 break;
+             case ControlMode::RECOVERY:
+                RecoveryControlMode::recoveryMode(buttonMask);
+                 break;
+             default:
+                 break;
+         }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+uint32_t GameController::getButtonCombinationMask() {
+    uint32_t buttonMask = static_cast<uint32_t>(0);
+    if (SDL_GameControllerGetButton(this->controller, SDL_CONTROLLER_BUTTON_A)) {
         buttonMask |= BTN_CROSS;
         std::cout << "Cross pressed" << std::endl;
     }
@@ -119,6 +235,7 @@ void GameController::getButtonCombinationMask() {
         std::cout << "Mute pressed" << std::endl;
     }
 
+    return buttonMask;
 }
 
 
@@ -260,6 +377,7 @@ bool GameController::controller_shutdown() {
     if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0) {
         SDL_Quit();
     }
+    Session::ctlr_shtdwn.store(false, std::memory_order_release);
     std::cout << "Controller shutdown finished" << std::endl;
     return true;
 }

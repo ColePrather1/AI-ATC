@@ -1,19 +1,13 @@
 
-
-//#include "atc.h"
-//#include "ThreadSafeQueue.h"
-//#include "QuickThread.h"
-
-//#include "System.h"
+#include <iostream>
+//#include <cctype>
+#include <thread>
 #include "atc.h"
 #include "Session.h"
 #include "Logging.h"
-#include <iostream>
-#include <cctype>
-//#include "../include/Session.h"
+#include "GameController.h"
 
 
-#include "pi_ble.h"
 
 /*
 bool keyboard_quit(){
@@ -37,18 +31,132 @@ bool keyboard_quit(){
 */
 
 
+
+#include <atomic>
+#include <chrono>
+#include <cstdint>
+#include <termios.h>
+#include <unistd.h>
+
 class MainThread {
 public:
     uint8_t data;
-    MainThread(uint8_t input) : data(input) { }
+    std::thread keyboard_thread;
+    std::atomic<bool> quit_flag{false};
+
+    MainThread(uint8_t input) : data(input) {
+        keyboard_thread = std::thread(&MainThread::keyboardInputThread, this);
+    }
+
     ~MainThread() {
-        Session::quit_flag.store(true, std::memory_order_release);
+        quit_flag.store(true, std::memory_order_release);
+        if (keyboard_thread.joinable()) {
+            keyboard_thread.join();
+        }
+    }
+
+    void keyboardInputThread() {
+        struct termios oldt, newt;
+        tcgetattr(STDIN_FILENO, &oldt);
+        newt = oldt;
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+        while (!quit_flag.load(std::memory_order_relaxed)) {
+            fd_set rfds;
+            struct timeval tv;
+            FD_ZERO(&rfds);
+            FD_SET(0, &rfds);
+            tv.tv_sec = 0;
+            tv.tv_usec = 10000;
+
+            int retval = select(1, &rfds, NULL, NULL, &tv);
+            if (retval == -1) {
+                perror("select()");
+            } else if (retval) {
+                char ch = getchar();
+                if (ch == 'q' || ch == 'Q') {
+                    quit_flag.store(true, std::memory_order_release);
+                    if (!ATC::atc_shutdown()) {
+                        std::cout << "(Keyboard) ATC shutdown failed" << std::endl;
+                    }
+                    break;
+                }
+            }
+        }
+
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     }
 };
 
 
+
+/*
+
+class MainThread {
+public:
+    uint8_t data;
+    std::thread keyboard_thread;
+    MainThread(uint8_t input) : data(input) { 
+        keyboard_thread = std::thread(&MainThread::keyboardInputThread, this);
+    }
+    ~MainThread() {
+        Session::quit_flag.store(true, std::memory_order_release);
+        if (keyboard_thread.joinable()) {
+            keyboard_thread.join();
+        }
+    }
+
+    void keyboardInputThread() {
+        while (!Session::quit_flag.load(std::memory_order_relaxed)) {
+            if (_kbhit()) {  // Check if a key is pressed
+                char ch = _getch();  // Get the pressed key
+                if (ch == 'q' || ch == 'Q') {
+                    Session::quit_flag.store(true, std::memory_order_release);
+                    if (!ATC::atc_shutdown()){
+                        std::cout << "(Keyboard) ATC shutdown failed" << std::endl;
+                    }
+                    break;
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    }
+
+};
+
+*/
+
+
+
 // Only handles startup and shutdown
 int main() {
+    MainThread main_thread(static_cast<uint8_t>(0));
+
+    if (!ATC::atc_startup()){
+        std::cout << "ATC startup failed" << std::endl;
+        return 1;
+    }
+    //Session::quit_flag.store(true, std::memory_order_release);
+
+    std::cout << "Main process starting..." << std::endl;
+
+    while (!Session::quit_flag.load(std::memory_order_acquire)) {
+        // TODO: Implement Main loop
+        std::cout << "Main Loop" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+
+    if (!Session::atc_finished.load(std::memory_order_relaxed)){
+        std::cout << "Shutdown failed" << std::endl;
+        return 1;
+    }
+    std::cout << "Shutdown successful" << std::endl;
+    return 0;
+}
+
+
+
     //if (SDL_Init(SDL_INIT_GAMECONTROLLER) < 0) {
     //if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0){
     //    std::cerr << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
@@ -66,19 +174,10 @@ int main() {
 */
 
 
-    MainThread main_thread(static_cast<uint8_t>(0));
 
-    if (!Logging::startLogger()){    
-        std::cout << "Logging Thread failed to start" << std::endl; 
-        return 1;   
-    }
-    while(!Session::logger_running.load(std::memory_order_relaxed)){
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    Logging::insertEventLog(EventType::SYSTEM_STARTUP);
-    std::cout << "Logging Thread started" << std::endl;
 
-/*
+
+    /*
     // TODO: add ! after testing finished
     if (!rf_rx_thread.start()){
         std::cout << "RF24 RX Thread failed to start" << std::endl;
@@ -92,16 +191,22 @@ int main() {
         return 1;
     }
     std::cout << "RF24 TX Thread started" << std::endl;
-*/
+    */
 
     //enable_ble();
     //usleep(100000);
 
-    if (!game_controller_thread.start()){
-        std::cout << "Game Controller Thread failed to start" << std::endl;
-        return 1;
-    }
-    std::cout << "Game Controller Thread started" << std::endl;
+    //if (!game_controller_thread.start()){
+    //    std::cout << "Game Controller Thread failed to start" << std::endl;
+    //    return 1;
+    //}
+    //std::cout << "Game Controller Thread started" << std::endl;
+
+    //if (!globalGameController.start()){
+    //    std::cout << "globalGameController failed to start" << std::endl;
+    //    return 1;
+    //}
+    //std::cout << "globalGameController started." << std::endl;
 
 
     /*
@@ -117,34 +222,43 @@ int main() {
     //}
 
 
-    char input;
-    while (true){
-        if (std::cin.get(input)){
-            if (std::tolower(input) == 'q') {
-                std::cout << "Exiting..." << std::endl;
-                Session::quit_flag.store(true, std::memory_order_release);
-                //return 0;
-                break;
-            }
-        }
-    }
-    Session::quit_flag.store(true, std::memory_order_release);
+
+    //std::cout << "Main process starting..." << std::endl;
+    //char input;
+    //while (true){
+    //    if (std::cin.get(input)){
+    //        if (std::tolower(input) == 'q') {
+    //            std::cout << "Exiting..." << std::endl;
+    //            Session::quit_flag.store(true, std::memory_order_release);
+    //            //return 0;
+    //            break;
+    //        }
+    //    }
+    //}
+    //Session::quit_flag.store(true, std::memory_order_release);
 
     // TODO: Use after finished dev testing
-    while (!Session::quit_flag.load(std::memory_order_acquire)) {
-        // TODO: Implement Main loop
-        std::cout << "Main Loop" << std::endl;
-    }
+    //while (!Session::quit_flag.load(std::memory_order_acquire)) {
+    //    // TODO: Implement Main loop
+    //    std::cout << "Main Loop" << std::endl;
+    //    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    //}
 
 
     // TODO: Implement shutdown procedure failsafe
-    if (!ATC::atc_shutdown()){
-        std::cout << "Shutdown failed" << std::endl;
-        return 1;
-    }
-    std::cout << "Shutdown successful" << std::endl;
-    return 0;
-}
+    //if (!ATC::atc_shutdown()){
+    //if (Session::atc){
+    //    std::cout << "Shutdown failed" << std::endl;
+    //    return 1;
+    //}
+
+//    if (!Session::atc_finished.load(std::memory_order_relaxed)){
+//        std::cout << "Shutdown failed" << std::endl;
+//        return 1;
+//    }
+//    std::cout << "Shutdown successful" << std::endl;
+//    return 0;
+//}
 
 
 

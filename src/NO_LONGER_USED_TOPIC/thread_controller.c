@@ -10,36 +10,6 @@
 
 static bool game_controller_setup(){
     //return GameController::controller_setup();
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
-    // Initialize controller
-    if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0) {       // SDL_INIT_JOYSTICK | 
-        std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
-
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
-    SDL_GameControllerEventState(SDL_ENABLE);
-
-
-    //controller = SDL_GameControllerOpen(0);
-    //if (controller == nullptr) {
-    //    return false;
-    //}
-    //return true;
-
-
-    if (waitForConnection()) {
-        std::cout << "Controller connected: " << SDL_GameControllerName(controller) << std::endl;
-    }
-    else {
-        std::cout << "Controller failed to connect. Ending program" << std::endl;
-        return false;
-    }
-
-
-    return true;
 
 }
 
