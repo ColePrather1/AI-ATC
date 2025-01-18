@@ -37,6 +37,18 @@ inline namespace Session {
     inline std::atomic<bool> quit_flag {false}, logger_started {false};
     inline std::atomic<bool> logger_running {false}, logger_thread_active {false};
 
+// Thread Loop Active
+    inline std::atomic<bool> ctlr_loop_active {false};
+    inline std::atomic<bool> logger_loop_active {false};
+    inline std::atomic<bool> rf_rx_loop_active {false};
+    inline std::atomic<bool> rf_tx_loop_active {false};
+
+// Thread Shutdown In-Progress
+    inline std::atomic<bool> ctlr_shtdwn {false};
+    inline std::atomic<bool> logger_shtdwn {false};
+    inline std::atomic<bool> rf_rx_shtdwn {false};
+    inline std::atomic<bool> rf_tx_shtdwn {false};
+    inline std::atomic<bool> computer_shtdwn {false};
 
 
 // Controller Parameters
@@ -64,8 +76,8 @@ inline namespace Session {
     inline std::atomic<TypeLevel> plane_altitude_level, plane_pitch_level, plane_air_speed_level;
     inline std::atomic<RollLevel> plane_roll_level;
     inline std::atomic<FlightPhase> airplane_active_flight_phase; 
-    inline std::atomic<ControlMode> control_mode;      // TODO: In all files, change to active_control_mode
-    inline std::atomic<bool> throttle_lock, 
+    inline std::atomic<ControlMode> control_mode{ControlMode::PAIRING};      // TODO: In all files, change to active_control_mode
+    inline std::atomic<bool> throttle_lock{false}, 
 
                       within_range, 
                       approaching_boundary,
@@ -113,7 +125,7 @@ inline namespace Session {
 
 
 // User HUD Parameters
-    inline std::atomic<bool> paired, ctlr_paired, ctlr_active;
+    inline std::atomic<bool> paired{false}, ctlr_paired{false}, ctlr_active{false};
    
 // Radio Parameters
     inline std::atomic<int> rf_tx_active_pipe {5};

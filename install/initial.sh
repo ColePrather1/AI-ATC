@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #CONTROLLER_MAC_ADDRESS = "7C:66:EF:28:79:D0"
-set-alias 7C:66:EF:28:79:D0 DualSense
+#set-alias 7C:66:EF:28:79:D0 DualSense
 
 
 set -e
@@ -29,9 +29,10 @@ sudo apt update -y
 echo "Installing essential build tools..."
 sudo apt install -y build-essential cmake git
 
-# Install SQLite3
+# Install SQLite3 & SDL2
 install_package "sqlite3"
 install_package "libsqlite3-dev"
+install_package "libsdl2-dev"
 
 # Install RF24 library
 if [ ! -d "/usr/local/include/RF24" ]; then
@@ -47,8 +48,7 @@ else
     echo "RF24 library is already installed."
 fi
 
-# Install SDL2
-install_package "libsdl2-dev"
+
 
 # Enable SPI
 echo "Enabling SPI..."
@@ -67,9 +67,9 @@ agent on
 default-agent
 scan on
 pairable on
-pair DualSense
-connect DualSense
-trust DualSense
+#pair DualSense
+#connect DualSense
+#trust DualSense
 EOF
 
 echo "Setup complete!"

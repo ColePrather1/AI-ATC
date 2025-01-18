@@ -2,7 +2,7 @@
 #define GAMECONTROLLER_H
 #pragma once
 
-//#include <SDL2/SDL.h>
+#include <SDL2/SDL.h>
 #include <cstdint>
 //#include "atc.h"
 //#include "atc_rf.h"
@@ -29,7 +29,7 @@
 
 namespace GameController {
 
-    //inline SDL_GameController* controller;
+    inline SDL_GameController* controller;
     inline uint32_t buttonMask;
     //uint8_t controller_defaults;
     //std::atomic<uint32_t> buttonMask;

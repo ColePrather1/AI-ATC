@@ -37,6 +37,15 @@ bool keyboard_quit(){
 */
 
 
+class MainThread {
+public:
+    uint8_t data;
+    MainThread(uint8_t input) : data(input) { }
+    ~MainThread() {
+        Session::quit_flag.store(true, std::memory_order_release);
+    }
+};
+
 
 // Only handles startup and shutdown
 int main() {
@@ -55,6 +64,9 @@ int main() {
 /*
     Program Initialization
 */
+
+
+    MainThread main_thread(static_cast<uint8_t>(0));
 
     if (!Logging::startLogger()){    
         std::cout << "Logging Thread failed to start" << std::endl; 
@@ -116,6 +128,7 @@ int main() {
             }
         }
     }
+    Session::quit_flag.store(true, std::memory_order_release);
 
     // TODO: Use after finished dev testing
     while (!Session::quit_flag.load(std::memory_order_acquire)) {

@@ -35,6 +35,7 @@ EOF
 chmod +x /usr/local/bin/bt-autoconnect.sh
 
 # Create the systemd service file
+
 cat << EOF > /etc/systemd/system/bt-autoconnect.service
 [Unit]
 Description=Bluetooth Controller Auto-connect

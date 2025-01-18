@@ -45,6 +45,7 @@ bool isDefault(uint8_t val) {}
     Creates bitmask of pressed buttons
 */
 
+/*
 void GameController::getButtonCombinationMask() {
     GameController::buttonMask = 0;
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A)) buttonMask |= BTN_CROSS;
@@ -61,7 +62,64 @@ void GameController::getButtonCombinationMask() {
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_TOUCHPAD)) buttonMask |= BTN_TOUCHPAD;
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_MISC1)) buttonMask |= BTN_MUTE;
 }
+*/
 
+void GameController::getButtonCombinationMask() {
+    GameController::buttonMask = 0;
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A)) {
+        buttonMask |= BTN_CROSS;
+        std::cout << "Cross pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B)) { 
+        buttonMask |= BTN_CIRCLE; 
+        std::cout << "Circle pressed" << std::endl; }
+
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X)) {
+        buttonMask |= BTN_SQUARE;
+        std::cout << "Square pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y)) {
+        buttonMask |= BTN_TRIANGLE;
+        std::cout << "Triangle pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER)) {
+        buttonMask |= BTN_L1;
+        std::cout << "L1 pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER)) {
+        buttonMask |= BTN_R1;
+        std::cout << "R1 pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSTICK)) {
+        buttonMask |= BTN_L3;
+        std::cout << "L3 pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSTICK)) {
+        buttonMask |= BTN_R3;
+        std::cout << "R3 pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK)) {
+        buttonMask |= BTN_SHARE;
+        std::cout << "Share pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START)) {
+        buttonMask |= BTN_OPTIONS;
+        std::cout << "Options pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_GUIDE)) {
+        buttonMask |= BTN_PS;
+        std::cout << "PS pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_TOUCHPAD)) {
+        buttonMask |= BTN_TOUCHPAD;
+        std::cout << "Touchpad pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_MISC1)) {
+        buttonMask |= BTN_MUTE;
+        std::cout << "Mute pressed" << std::endl;
+    }
+
+}
 
 
 
@@ -108,7 +166,7 @@ bool GameController::waitForConnection(){
         for (int i = 0; i < SDL_NumJoysticks(); ++i) {
             if (SDL_IsGameController(i)) {
                 controller = SDL_GameControllerOpen(i);
-                if (controller) {
+                if (controller != nullptr) {
                     std::cout << "Found game controller: " << SDL_GameControllerName(controller) << std::endl;
                     Session::ctlr_paired.store(true, std::memory_order_release);
                     // TODO: Implement ctrl_paired SQL logging event 
@@ -155,13 +213,17 @@ bool GameController::waitForConnection(){
 }
 
 bool GameController::controller_setup() {
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
     // Initialize controller
-    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0) {
+    if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0) {       // SDL_INIT_JOYSTICK | 
         std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    SDL_GameControllerEventState(SDL_ENABLE);
+
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
+    SDL_GameControllerEventState(SDL_ENABLE);
 
 
     //controller = SDL_GameControllerOpen(0);
@@ -186,6 +248,7 @@ bool GameController::controller_setup() {
 
 // Return true -> controller shutdown successfully
 bool GameController::controller_shutdown() {
+    Session::ctlr_shtdwn.store(true, std::memory_order_release);
     if (controller) {
         SDL_GameControllerClose(controller);
         controller = nullptr;
