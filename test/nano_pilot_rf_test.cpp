@@ -1,6 +1,8 @@
 #include <SPI.h>
 #include <RF24.h>
 
+#include "nano_rf_test.h"
+
 RF24 radio(8, 10); // CE pin 9, CSN pin 10 for Arduino
 //RF24 radio;
 

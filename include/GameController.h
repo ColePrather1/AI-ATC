@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 #include <cstdint>
 #include <thread>
+#include <functional>
 //#include "atc.h"
 //#include "atc_rf.h"
 //#include <atomic>
@@ -28,6 +29,7 @@
 #define BTN_TOUCHPAD (1 << 13)
 #define BTN_MUTE     (1 << 14)
 
+constexpr uint32_t NULL_BUTTONS = 0;
 
 class GameController {
 public:
@@ -35,15 +37,37 @@ public:
     uint8_t controller_id;
     SDL_GameController* controller;
     //uint32_t buttonMask;
+    std::atomic<bool> paused;
     std::thread controller_thread;
+    std::thread event_thread;
+    //using buttonFunction = void(&)(uint32_t);
+    //using featureFunction = void(&)(uint32_t);
+    //using voidFunction = void(&)();
+    //voidFunction buttonFunction;
+    //voidFunction featureFunction;
 
+    //void (*controllerFunction)();
+    //using FunctionRef = void(&)(uint32_t);
+
+
+
+    //std::thread button_thread;
+    //std::thread features_thread;
+
+    //std::atomic<uint32_t> buttons;
+    //std::atomic<uint32_t> buttons_at_release;
 
     bool start();
     bool stop();
     bool setup();
     void loop();
-
+    void waiting();
+    
     uint32_t getButtonCombinationMask();
+    uint32_t getButtons();
+
+    void handleButtons(uint32_t& buttonMask);
+
     //uint32_t getButtonCombinationMask();
     //void handleButtonCombinations(uint32_t& mask);
     bool controller_setup();
@@ -52,10 +76,8 @@ public:
     void handleEvents();
     bool controller_shutdown();
 
-    GameController() {}
-    GameController(uint8_t controller_id) {
-        this->controller_id = controller_id;
-    }
+    GameController();
+    GameController(uint8_t controller_id);
     ~GameController() {}
 };
 

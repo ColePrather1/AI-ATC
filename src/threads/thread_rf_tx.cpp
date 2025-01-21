@@ -90,7 +90,7 @@ static void rf_tx_loop(){
     return;
 }
 
-bool send_packet(Packet* packet, const int send_pipe) {
+bool send_packet(Packet* packet, int send_pipe) {
     if (send_pipe >= 6) {
         std::cout << "Invalid pipe number" << std::endl;
         return false;
@@ -106,6 +106,7 @@ bool send_packet(Packet* packet, const int send_pipe) {
         std::cout << "Failed to send packet" << std::endl;
         return false;
     }
+    std::cout << "Packet sent" << std::endl;
     return true;
 }
 

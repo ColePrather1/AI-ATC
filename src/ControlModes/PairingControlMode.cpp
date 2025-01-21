@@ -4,6 +4,7 @@
 #include "GameController.h"
 #include "Common.h"
 #include "Session.h"
+#include "Logging.h"
 //#include <SDL2/SDL.h>
 
 void PairingControlMode::pairingMode(uint32_t mask) {
@@ -24,7 +25,11 @@ void PairingControlMode::send_btns(uint32_t mask) {
     switch (mask) {
         // (A)
         case BTN_CROSS:
+        //TODO: Only for Dev & Testing purposes
             std::cout << "Cross button pressed" << std::endl;
+            Session::control_mode.store(ControlMode::MANUAL, std::memory_order_acquire);
+            Logging::insertEventLog(EventType::CONTROL_MODE_CHANGE_MANUAL, static_cast<uint8_t>(ControlMode::MANUAL));
+            std::cout << "ControlMode set to MANUAL" << std::endl;
             break;
         
         // (B)

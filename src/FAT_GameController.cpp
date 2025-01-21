@@ -132,7 +132,6 @@ bool GameController::setup() {
     return true;
 }
 
-// TODO: Delete
 void GameController::waiting() {
     ControlMode mode = Session::control_mode.load(std::memory_order_relaxed);
     while (mode != ControlMode::MANUAL 
@@ -165,33 +164,95 @@ void GameController::waiting() {
 void GameController::loop() {
     while (Session::ctlr_loop_active.load(std::memory_order_relaxed)
     && !Session::quit_flag.load(std::memory_order_relaxed))  {
+        featureFunction();
+        //SDL_Delay(2);  // Avoid busy-waiting  // SDL2_Delay(2) is handled in eventHandler
+        //ControlMode mode = Session::control_mode.load(std::memory_order_relaxed);
+        //mode_funcs[mode]->featureFunction();
+        //featureFunction();
+        //SDL_Delay(2);  // Avoid busy-waiting  // SDL2_Delay(2) is handled in eventHandler
 
-        ControlMode mode = Session::control_mode.load(std::memory_order_relaxed);
-        while (mode != ControlMode::MANUAL 
-            && mode != ControlMode::ASSIST
-            && mode != ControlMode::TAXI)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        } // Wait for an appropriate control mode    
-
-        switch (Session::control_mode.load(std::memory_order_relaxed)) {
-           // 8 Modes total, 5 fully-automated, 3 user-required
-           case ControlMode::MANUAL:
-              ManualControlMode::processFeatures();
-               break;
-           case ControlMode::ASSIST:
-              AssistControlMode::processFeatures();
-               break;
-           case ControlMode::TAXI:
-              TaxiControlMode::processFeatures();
-               break;
-            default:
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-               break;
-        }   
         continue;
     }
 }
+
+        //ControlMode mode = Session::control_mode.load(std::memory_order_relaxed)
+
+        
+        //while (mode != ControlMode::MANUAL 
+        //    && mode != ControlMode::ASSIST
+        //    && mode != ControlMode::TAXI)
+        //{
+        //    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        //} // Wait for an appropriate control mode
+        
+
+        
+        //std::cout << "GameController loop started" << std::endl;
+        ////if (Session::quit_flag.load(std::memory_order_acquire) && !Session::ctlr_shtdwn.load(std::memory_order_acquire)) {
+        ////    Session::ctlr_shtdwn.store(true, std::memory_order_release);
+        ////    //GameController::controller_shutdown();
+        ////    controller_shutdown();
+        ////    return;
+        ////}
+        //std::cout << "GameController loop active" << std::endl;
+
+        //GameController::handleEvents();
+        //
+
+        // TODO: Fix button clicks to be 1 instead of tons
+        // TODO: Fix button clicks to be 1 instead of tons
+        // TODO: Fix button clicks to be 1 instead of tons
+
+        //handleEvents();
+
+
+
+
+            //std::cout << "Controller paired" << std::endl;
+            //GameController::buttonMask = getButtonCombinationMask();
+            //GameController::getButtonCombinationMask();
+            //uint32_t buttonMask = getButtonCombinationMask();
+            //std::cout << "GameController loop active" << std::endl;
+        // TODO: Create function pointer for each control mode to replace switch
+        // TODO: Create function pointer for each control mode to replace switch
+         //switch (Session::control_mode.load(std::memory_order_relaxed)) {
+         //   // 8 Modes total, 5 fully-automated, 3 user-required
+         //   case ControlMode::MANUAL:
+         //      ManualControlMode::manualMode();
+         //       break;
+         //   case ControlMode::ASSIST:
+         //      AssistControlMode::assistMode();
+         //       break;
+         //   case ControlMode::TAXI:
+         //      TaxiControlMode::taxiMode();
+         //       break;
+        
+            /*  REMOVED: Does not need triggers/joysticks (buttons only)
+            case ControlMode::AUTO:
+               AutoControlMode::autoMode(buttonMask);
+                break;
+            case ControlMode::HOLDING:
+               HoldingControlMode::holdingMode(buttonMask);
+                break;
+            case ControlMode::EMERGENCY:
+               EmergencyControlMode::emergencyMode(buttonMask);
+                break;
+            case ControlMode::PAIRING:
+               PairingControlMode::pairingMode(buttonMask);
+                break;
+            case ControlMode::RECOVERY:
+               RecoveryControlMode::recoveryMode(buttonMask);
+                break;
+            
+            default:
+                break;
+            */
+         //}
+         //std::cout << "Outside of switch" << std::endl;
+        
+        //std::cout << "Outside of if" << std::endl;
+        //std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
 
 
 // TODO: replace switch-case of ControlMode to be s-c of ButtonCombo
@@ -225,6 +286,99 @@ void GameController::handleButtons(uint32_t& buttonMask) {
             break;
     }
 }
+
+/*
+uint32_t GameController::getButtonCombinationMask() {
+    uint32_t buttonMask = static_cast<uint32_t>(0);
+    if (SDL_GameControllerGetButton(this->controller, SDL_CONTROLLER_BUTTON_A)) {
+        std::cout << "Cross pressed" << std::endl;
+        buttonMask |= BTN_CROSS;
+    }
+    if (SDL_GameControllerGetButton(this->controller, SDL_CONTROLLER_BUTTON_B)) {
+        std::cout << "Circle pressed" << std::endl; 
+        buttonMask |= BTN_CIRCLE; 
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X)) {
+        buttonMask |= BTN_SQUARE;
+        std::cout << "Square pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y)) {
+        buttonMask |= BTN_TRIANGLE;
+        std::cout << "Triangle pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER)) {
+        buttonMask |= BTN_L1;
+        std::cout << "L1 pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER)) {
+        buttonMask |= BTN_R1;
+        std::cout << "R1 pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSTICK)) {
+        buttonMask |= BTN_L3;
+        std::cout << "L3 pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSTICK)) {
+        buttonMask |= BTN_R3;
+        std::cout << "R3 pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK)) {
+        buttonMask |= BTN_SHARE;
+        std::cout << "Share pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START)) {
+        buttonMask |= BTN_OPTIONS;
+        std::cout << "Options pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_GUIDE)) {
+        buttonMask |= BTN_PS;
+        std::cout << "PS pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_TOUCHPAD)) {
+        buttonMask |= BTN_TOUCHPAD;
+        std::cout << "Touchpad pressed" << std::endl;
+    }
+    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_MISC1)) {
+        buttonMask |= BTN_MUTE;
+        std::cout << "Mute pressed" << std::endl;
+    }
+    
+    return buttonMask;
+}
+
+*/
+
+/*
+bool GameController::tryConnect(){
+    if (SDL_NumJoysticks() < 1) {
+    //if //(NumGameControllers() < 1) {
+        std::cout << "Warning: No joysticks connected!" << std::endl;
+        std::cout << "Waiting for controller..." << std::endl;
+        while(SDL_NumJoysticks() < 1){
+            //usleep(10000);
+            this_thread::sleep_for(std::chrono::milliseconds(5000));    // Wait 5 seconds
+            if (Session::quit_flag.load(std::memory_order_acquire)) {
+                return false;
+            }
+            std::cout << "Warning: No joysticks connected!" << std::endl;
+            continue;
+            //std::cout << "Warning: No joysticks connected!" << std::endl;
+            
+        }
+        std::cout << "While loop broke" << std::endl;
+
+    } else {
+        controller = SDL_GameControllerOpen(0);
+        if (controller == nullptr) {
+            std::cout << "Warning: Unable to open game controller! SDL Error: " << SDL_GetError() << std::endl;
+            
+        }
+        std::cout << "Controller connected: " << SDL_GameControllerName(controller) << std::endl;
+    }
+    return true;
+}
+*/
+
 
 bool GameController::waitForConnection(){
 
@@ -392,7 +546,18 @@ void GameController::handleEvents() {
                         SDL_Delay(10); // Small delay to avoid busy-waiting
                     }
                     handleButtons(pressedButtons);
-                }
+                    //buttons.store(pressedButtons, std::memory_order_release);
+
+                    // Now pressedButtons contains a bitmask of all buttons pressed before the release
+                    //std::cout << "Buttons pressed before release: " << std::bitset<32>(pressedButtons) << std::endl;
+                    //handleButtonCombination(pressedButtons);
+
+                    ////Logging::insertEventLog(EventType::CONTROLLER_CLICKED);
+                    ////std::this_thread::sleep_for(std::chrono::milliseconds(2));
+                    //SDL_Delay(2);  // Wait for potential multiple button presses
+                    ////uint32_t start = getButtonCombinationMask();
+                    //buttons = getButtonCombinationMask();
+                                    
                     break;
                 //case SDL_CONTROLLERBUTTONUP:
                 //    break;

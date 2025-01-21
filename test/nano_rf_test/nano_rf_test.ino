@@ -1,6 +1,9 @@
 #include <SPI.h>
 #include <RF24.h>
 
+#include "nano_rf_test.h"
+
+
 RF24 radio(8, 10); // CE pin 9, CSN pin 10 for Arduino
 //RF24 radio;
 
@@ -30,10 +33,68 @@ void setup() {
 }
 
 void loop() {
-  if (radio.available()) {
-    char text[32] = "";
-    radio.read(&text, sizeof(text));
-    Serial.print("Received: ");
-    Serial.println(text);
+
+  Packet* pkt;
+  static uint8_t pipe;
+  static uint8_t pkt_size;
+
+  PacketType pkt_type;
+
+  //uint8_t buffer[32];
+
+  byte buffer[32];
+
+  if (radio.available(&pipe)) {
+    pkt_size = radio.getDynamicPayloadSize();
+
+    radio.read(buffer, pkt_size);
+    //const Packet* packet = reinterpret_cast<const Packet*>(buffer);
+    //pkt_type = 
+    pkt_type =  reinterpret_cast<const Packet*>(buffer)->type;
+
+    switch (pkt_type) {
+      case PacketType::BASE:
+        Serial.println("BASE packet received.");
+        break;
+      case PacketType::MANUAL:
+        Serial.println("MANUAL :");
+        const ManualPacket* mPkt = reinterpret_cast<const ManualPacket*>(buffer);
+
+        uint8_t throttle = mPkt->throttle;
+        uint8_t elevator = mPkt->elevator;
+        uint8_t rudder = mPkt->rudder;
+        uint8_t left_aileron = mPkt->left_aileron;
+        uint8_t right_aileron = mPkt->right_aileron;
+        Serial.println(" Throttle :");
+        Serial.print(throttle);
+        Serial.println(" Elevator :");
+        Serial.print(elevator);
+        Serial.println(" Rudder :");
+        Serial.print(rudder);
+        Serial.println(" Left Aileron :");
+        Serial.print(left_aileron);
+        Serial.println(" Right Aileron :");
+        Serial.print(right_aileron);
+        break;
+    }
+
+
+
+
+    //char text[32] = "";
+
+    //std::vector<std::byte> buffer(incoming_packet_size);
+    //radio_rx.read(buffer.data(), incoming_packet_size);
+    //rx_buffer_queue.enqueue(buffer);    
+
+
+
+    //radio.read(&text, sizeof(text));
+    //Serial.print("Received: ");
+    //Serial.println(text);
+
+
+
   }
 }
+

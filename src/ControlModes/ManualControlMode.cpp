@@ -13,20 +13,11 @@
 
 #include <cstdint>
 
-void ManualControlMode::manualMode(uint32_t mask) {
-
-    // Sticks & Triggers
-    manual_send_features();
-    // Buttons 
-    handleManualButtonCombinations(mask);
-    // System checks to act on buttons
-
-}
-
 /*
     Sends values of changing axises for manual control
 */
-void ManualControlMode::manual_send_features() {
+void ManualControlMode::processFeatures() {
+    //while (Session::control_mode == ControlMode::MANUAL) {}
 
         uint8_t throttle_val_read, elevator_val_read, rudder_val_read, aileron_val_left_read, aileron_val_right_read;
         //uint8_t temp_reads[NUM_FEATS] = {&throttle_val_read, &elevator_val_read, &rudder_val_read, &aileron_val_left_read, &aileron_val_right_read };
@@ -63,6 +54,12 @@ void ManualControlMode::manual_send_features() {
         //ManualPacket manual_pkt('m', throttle_val_read, elevator_val_read, rudder_val_read, aileron_val_left_read, aileron_val_right_read);
         //ManualPacket* manual_pkt = new ManualPacket('m', temp_reads, 0);
 
+        std::cout << "Throttle: " << throttle_val_read << std::endl;
+        std::cout << "Elevator: " << elevator_val_read << std::endl;
+        std::cout << "Rudder: " << rudder_val_read << std::endl;
+        std::cout << "Left Aileron: " << aileron_val_left_read << std::endl;
+        std::cout << "Right Aileron: " << aileron_val_right_read << std::endl;
+
         ManualPacket* manual_pkt = new ManualPacket('m', throttle_val_read, elevator_val_read, rudder_val_read, aileron_val_left_read, aileron_val_right_read);
         sendToPlane(manual_pkt);
 
@@ -92,19 +89,19 @@ void ManualControlMode::manual_send_features() {
 TODO:    (Manual) Processes bitmask of pressed buttons
 */
 // uint32_t& mask
-void ManualControlMode::handleManualButtonCombinations(uint32_t mask) {
+void ManualControlMode::processEvent(uint32_t& mask) {
     switch (mask) {
-
         // (A)
         // Assist/Manual toggle
         case BTN_CROSS:
             std::cout << "Cross button pressed" << std::endl;
             std::cout << "A button pressed" << std::endl;
             // Add more checks as needed in future
-            if (Session::control_mode.load(std::memory_order_relaxed) == ControlMode::MANUAL) {
-                Session::control_mode.store(ControlMode::ASSIST);  // Set control mode to ASSIST
-                std::cout << "Control mode set to ASSIST" << std::endl;
-            }         
+            // TODO: Taken out only for Dev & Testing purposes
+            //if (Session::control_mode.load(std::memory_order_relaxed) == ControlMode::MANUAL) {
+            //    Session::control_mode.store(ControlMode::ASSIST);  // Set control mode to ASSIST
+            //    std::cout << "Control mode set to ASSIST" << std::endl;
+            //}         
 
             // Send StatusPacket
 

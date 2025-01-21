@@ -6,7 +6,7 @@
 
 namespace RadioTx {
     //ThreadSafeQueue<Packet> tx_queue;
-    inline ThreadSafeQueue<Packet*> tx_queue(50);
+    inline ThreadSafeQueue<Packet*> tx_queue(100);
 }
 
 #endif // RADIO_TX_QUEUE_H
