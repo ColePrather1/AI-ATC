@@ -1,6 +1,7 @@
 
 #include "Logging.h"
 #include "Session.h"
+#include <thread>
 //#include "include/Logging.h"
 //#include "../include/Logging.h"
 
@@ -18,15 +19,21 @@ bool Logging::startLogger(){
     // Create Database & assign to pointer
     //DB = new FlightDatabase(getNextUniqueFilename().c_str());
     DB = new FlightDatabase(getNextUniqueFilename());
-    while (!Session::logger_thread_active.load(std::memory_order_acquire)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    };
+    //while (!Session::logger_thread_active.load(std::memory_order_acquire) && !Session::quit_flag.load(std::memory_order_acquire)) {
+    
     DB->startDBLoop();
     return true;    
 }
 
 void Logging::stopLogger(){
     DB->stopDBLoop();
+
+    // While DB loop is active, wait for it to finish before continuing
+    while (!Session::logger_finished.load(std::memory_order_acquire)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        continue;
+    }
+
     delete DB;
     return;
 }

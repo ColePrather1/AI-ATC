@@ -156,7 +156,26 @@ enum class EventType : uint8_t {
     EXTRA = 127,
     DB_CREATED = 128,
     RF_RX_LOOPED = 129,
-    RF_RX_FAILED_TO_START = 130
+    RF_RX_FAILED_TO_START = 130,
+    RF_TX_FAILED_TO_START = 131,
+
+// Shutdown
+    RF_RX_START = 132,
+    RF_RX_STOP = 133,
+    RF_TX_START = 134,
+    RF_TX_STOP = 135,
+    ATC_START = 136,
+    ATC_STOP = 137,
+    LOGGER_START = 138,
+    LOGGER_STOP = 139,
+    PROCESS_START = 140,
+    PROCESS_STOP = 141,
+    DM_INSERT_ERROR = 142,
+
+// Controller Events
+    CONTROLLER_CONNECTED = 143,
+    CONTROLLER_DISCONNECTED = 144,
+    CONTROLLER_CLICKED = 145
 
 };
 

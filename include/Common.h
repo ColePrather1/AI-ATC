@@ -30,6 +30,17 @@
 //}
 
 
+enum class ServiceState : uint8_t {
+    DISABLED = 0,
+    INACTIVE = 1,
+    ACTIVE = 2,
+    STARTED = 3,
+    STOPPED = 4,
+    IN_STARTUP = 5, 
+    IN_SHUTDOWN = 6,
+    IN_RECOVERY = 7
+};
+
 
 enum class Flaps : uint8_t { DEGREES_0 = 0,
                              DEGREES_5 = 1,

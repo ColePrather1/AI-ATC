@@ -1,0 +1,18 @@
+# Tx nRF24L01 (SPI0)
+gpio=22=op,dl  # CE      # OLD 8
+gpio=8=op,dh  # CSN      # OLD 22
+gpio=11=op,dl  # SCK
+gpio=10=op,dl  # MOSI
+gpio=9=ip,pu  # MISO
+gpio=27=ip,pu   # IRQ
+
+
+# Rx nRF24L01 (SPI1)
+gpio=23=op,dl  # CE     # OLD 16,18,17 ## OPTIONS 18,17,16
+gpio=18=op,dh  # CSN    # OLD 23,17    ## OPTIONS 18,17,16
+gpio=21=op,dl  # SCK
+gpio=20=op,dl  # MOSI
+gpio=19=ip,pu  # MISO
+gpio=12=ip,pu   # IRQ
+
+

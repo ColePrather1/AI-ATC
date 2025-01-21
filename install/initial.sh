@@ -12,6 +12,7 @@ fi
 
 set -e
 
+
 # Function to check if a command exists
 command_exists() {
     command -v "$1" &> /dev/null
@@ -56,6 +57,9 @@ else
 fi
 
 
+# Copy config files
+echo "Copying config files..."
+sudo cp boot-config.txt /boot/firmware/config.txt
 
 # Enable SPI
 echo "Enabling SPI..."
@@ -67,8 +71,24 @@ fi
 
 
 # Configure Bluetooth
-chmod +x bt-setup.sh
-sudo ./bt-setup.sh
+echo "Configuring Bluetooth..."
+if [ -f "bt-setup.sh" ]; then
+    chmod +x bt-setup.sh
+    sudo ./bt-setup.sh
+else
+    echo "bt-setup.sh not found. Skipping Bluetooth setup."
+fi
 
 
-echo "Setup complete!"
+
+# Install Complete
+#echo "Setup complete!"
+
+
+# Reboot prompt
+read -p "Initial setup complete. Reboot now? (y/n) " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    sudo reboot
+fi

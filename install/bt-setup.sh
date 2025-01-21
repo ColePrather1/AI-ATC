@@ -2,8 +2,8 @@
 
 # Bluetooth Controller Auto-Connect Setup Script
 
-WHITE_PS5_CTLR_MAC="7C:66:EF:28:79:D0" 
-CONTROLLER_MAC=$WHITE_PS5_CTLR_MAC
+#WHITE_PS5_CTLR_MAC="7C:66:EF:28:79:D0" 
+#CONTROLLER_MAC=$WHITE_PS5_CTLR_MAC
 
 
 # Ensure script is run with sudo
@@ -16,9 +16,9 @@ sudo usermod -a -G bluetooth $USER
 
 
 # Prompt for controller MAC address if not provided
-if [ -z "$CONTROLLER_MAC" ]; then
-  read -p "Enter your controller's MAC address (format XX:XX:XX:XX:XX:XX): " CONTROLLER_MAC
-fi
+#if [ -z "$CONTROLLER_MAC" ]; then
+#  read -p "Enter your controller's MAC address (format XX:XX:XX:XX:XX:XX): " CONTROLLER_MAC
+#fi
 
 # Install necessary packages
 sudo apt-get update
@@ -37,6 +37,8 @@ chmod +x /usr/local/bin/bt-autoconnect.sh
 cp bt-autoconnect.service /etc/systemd/system/bt-autoconnect.service
 cp bt_main.conf /etc/bluetooth/main.conf
 cp 90-bt-autoconnect.rules /etc/udev/rules.d/90-bt-autoconnect.rules
+sudo cp my_RF24.h /usr/local/include/RF24/RF24.h
+sudo cp my_spi.h /usr/local/include/RF24/utility/SPIDEV/spi.h
 
 
 # Enable Bluetooth service

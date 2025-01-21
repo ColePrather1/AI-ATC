@@ -30,8 +30,10 @@ private:
     // Queue for binded statements (all tables) to be executed
 
     //ThreadSafeQueue<DbStatement> binded_stmt_queue = ThreadSafeQueue<DbStatement>(50);    // SQL statement queue
-    ThreadSafeQueue<DbStatement> binded_stmt_queue{50}; //= ThreadSafeQueue<DbStatement>(50);    // SQL statement queue
 
+    // TODO: Add lock to prevent new statements from being added
+    ThreadSafeQueue<DbStatement> binded_stmt_queue{50}; //= ThreadSafeQueue<DbStatement>(50);    // SQL statement queue
+    
 /*
     Queues for free statements, for re-use, for each table
 */

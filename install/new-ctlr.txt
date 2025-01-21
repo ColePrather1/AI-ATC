@@ -1,0 +1,4 @@
+pair "7C:66:EF:28:79:D0"
+trust "7C:66:EF:28:79:D0"
+connect "7C:66:EF:28:79:D0"
+set-alias DualSense

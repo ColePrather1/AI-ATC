@@ -61,6 +61,7 @@ public:
 
 inline GameController globalGameController{static_cast<uint8_t>(0)};
 
+/*
 //extern GameController& getGlobalGameController();
 namespace OLD_GameController {
 
@@ -109,6 +110,7 @@ namespace OLD_GameController {
 
 }
 
+*/
 
 
 #endif // GAMECONTROLLER_H

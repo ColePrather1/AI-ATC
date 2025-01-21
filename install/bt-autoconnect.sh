@@ -4,6 +4,9 @@ WHITE_PS5_CTLR_MAC="7C:66:EF:28:79:D0"
 CONTROLLER_MAC=$WHITE_PS5_CTLR_MAC
 CONTROLLER_MAC="$CONTROLLER_MAC"
 
+# Allow pair/trust script for new controllers
+sudo chmod +x pair_controller.sh
+sudo ./pair_controller.sh
 
 setup_bluetooth() {
     # Check if Bluetooth is blocked
@@ -22,10 +25,36 @@ setup_bluetooth() {
     # Power on Bluetooth
     echo "Powering on Bluetooth..."
     bluetoothctl power on
+    bluetoothctl agent on
+    bluetoothctl default-agent
+    
+}
+
+pair_new_controller() {
+    echo "Waiting for controller to pair & trust..."
+    while true; do
+        if bluetoothctl info $CONTROLLER_MAC | grep -q "Paired: yes" ; then
+            if bluetoothctl info $CONTROLLER_MAC | grep -q "Trusted: yes"; then
+                echo "Device is paired and trusted."
+                break       
+            else
+                echo "Device is not yet trusted. Attempting to trust..."
+                bluetoothctl trust $CONTROLLER_MAC     
+            fi
+        else
+            echo "Device is not yet paired. Attempting to pair..."
+            bluetoothctl pair $CONTROLLER_MAC
+        fi
+        sleep 5
+    done
+
+    bluetoothctl set-alias $CONTROLLER_MAC DualSense
+    echo "Controller saved."
 }
 
 
 setup_bluetooth
+pair_new_controller
 
 while true; do
     if ! bluetoothctl info $CONTROLLER_MAC | grep -q "Connected: yes"; then

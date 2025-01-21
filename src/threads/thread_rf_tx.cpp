@@ -1,11 +1,13 @@
 #include "threads/thread_rf_tx.hpp"
 
 #include "Session.h"
+#include "Logging.h"
 #include "QuickThread.h"
 #include "rf_com.h"
 #include "RadioTxQueue.h"
 
 #include "packets/packets.h"
+#include "EventTypes.h"
 #include <iostream>
 //#include "atc_rf.h"
 
@@ -18,10 +20,13 @@ static RF24 radio_tx(22, 0); // CE, CSN pins for transmitting radio
 static bool rf_tx_setup(){
     // Initialize transmitting radio
     //RF24 radio_tx(22, 0); // CE, CSN pins for transmitting radio
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     if (!radio_tx.begin()) {
+        Logging::insertEventLog(EventType::RF_TX_FAILED_TO_START);
         std::cout << "Failed to initialize transmitting radio" << std::endl;
         return false;
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     radio_tx.stopListening();
     radio_tx.openWritingPipe(pipes[0]);     // Initial pipe for comm with Pilot
     radio_tx.setChannel(69);
@@ -30,8 +35,11 @@ static bool rf_tx_setup(){
     //radio_tx.openWritingPipe(pipes[3]);
     
     radio_tx.setPALevel(RF24_PA_LOW);
-    radio_tx.setAutoAck(false);
+    //radio_tx.setAutoAck(false);
     radio_tx.setDataRate(RF24_250KBPS);
+
+
+
     return true;
 
     //return ATC_RF::tx_setup();
@@ -44,8 +52,9 @@ static bool rf_tx_setup(){
 
 
 static void rf_tx_loop(){
-    while (true) {
-        std::cout << "RF24 TX Thread running in da loop" << std::endl;
+    Session::rf_tx_loop_active.store(true, std::memory_order_release);
+    while (Session::rf_tx_loop_active.load(std::memory_order_relaxed) && !Session::quit_flag.load(std::memory_order_relaxed)) {
+        //std::cout << "RF24 TX Thread running in da loop" << std::endl;
         Packet* packet;
         if (!RadioTx::tx_queue.empty()) {          // If Packet ready to send
             //RadioTx::tx_queue.dequeue(packet);
@@ -74,8 +83,11 @@ static void rf_tx_loop(){
             //usleep(100);
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-    
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        continue;
     }
+    Session::rf_tx_loop_active.store(false, std::memory_order_release);
+    return;
 }
 
 bool send_packet(Packet* packet, const int send_pipe) {

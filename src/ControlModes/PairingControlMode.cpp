@@ -16,8 +16,12 @@ void PairingControlMode::send_features() {}
 
 
 void PairingControlMode::send_btns(uint32_t mask) {
+    if (mask == 0) {
+        return; // No buttons are pressed , remove clutter
+    }
+    std::cout << "Button mask: " << mask << std::endl;
+    std::cout << "Button mask (int): " << static_cast<uint32_t>(mask) << std::endl;
     switch (mask) {
-        
         // (A)
         case BTN_CROSS:
             std::cout << "Cross button pressed" << std::endl;

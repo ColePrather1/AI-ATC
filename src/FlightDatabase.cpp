@@ -7,6 +7,8 @@
 #include "myTime.h"
 
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include "ThreadSafeQueue.h"
 
 
@@ -48,10 +50,12 @@ FlightDatabase::FlightDatabase(std::string dbname) {
 
     //binded_stmt_queue = ThreadSafeQueue<DbStatement>(50);
 
-    Session::logger_thread_active.store(true, std::memory_order_release);
+    //Session::logger_thread_active.store(true, std::memory_order_release);
 
     createStatements();
     //Session::getInstance().setDatabase(this);
+    Session::logger_started.store(true, std::memory_order_release);
+    return;
 }
 
 /*
@@ -89,8 +93,8 @@ FlightDatabase::FlightDatabase(const char* dbname) {
 */
 
 FlightDatabase::~FlightDatabase() {
-    finalizeStatements();
-    sqlite3_close(db);
+    //finalizeStatements();
+    //sqlite3_close(db);
     stopDBLoop();
 }
 
@@ -113,26 +117,55 @@ bool FlightDatabase::setSchema() {
 
 void FlightDatabase::startDBLoop() {
     //Session::logger_thread_active.store(true, std::memory_order_release);
+    
+    // Wait for logging setup to finish, prior to starting main DB loop
+    while (!Session::logger_started.load(std::memory_order_acquire) 
+    && !Session::quit_flag.load(std::memory_order_acquire)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    };
+
     DB_thread = std::thread(&FlightDatabase::DB_loop, this);
+    //Session::logger_started.store(true, std::memory_order_release);
+    //Session::logger_thread_active.store(true, std::memory_order_release);
     // TODO: decide about detach()
     //DB_thread.detach();
-    Session::logger_running.store(true, std::memory_order_release);
+    //Session::logger_running.store(true, std::memory_order_release);
+    //Session::logger_loop_active.store(true, std::memory_order_release);
     return;
 }
 
 void FlightDatabase::stopDBLoop() {
-    Session::logger_thread_active.store(false, std::memory_order_release);
-    Session::logger_running.store(false, std::memory_order_release);
+    //while(binded_stmt_queue.size() > 0) {
+    //    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    //} // Wait for queue to empty
+    Session::logger_loop_active.store(false, std::memory_order_release);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    //Session::logger_running.store(false, std::memory_order_release);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     //DB_loop_active = false;
     // TODO: decide about detach() affects this
 
-    finalizeStatements();
-    sqlite3_close(db);
+    if (!Session::sql_finalized.load(std::memory_order_acquire)) {
+        finalizeStatements();
+        Session::sql_finalized.store(true, std::memory_order_release);
+    }
+
+    if (!Session::sql_closed.load(std::memory_order_acquire)) {
+        sqlite3_close(db);
+        Session::sql_closed.store(true, std::memory_order_release);
+    }
+
+
     if (DB_thread.joinable()) {
         DB_thread.join();
-        Session::logger_running.store(false, std::memory_order_release);
+        //Session::logger_thread_active.store(false, std::memory_order_release);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        //Session::logger_running.store(false, std::memory_order_release);
         std::cout << "Logging Thread finished successfully." << std::endl;
     }
+    Session::logger_finished.store(true, std::memory_order_release);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     return;
 }
 
@@ -140,13 +173,14 @@ void FlightDatabase::stopDBLoop() {
 TODO: Find new features to implement
 */
 void FlightDatabase::DB_loop() {
-    while (Session::logger_thread_active.load(std::memory_order_relaxed)) {
+    Session::logger_loop_active.store(true, std::memory_order_release);
+    while (Session::logger_loop_active.load(std::memory_order_relaxed)) {
         // If binded_stmt_queue is empty, return
         if (binded_stmt_queue.empty()) {
 //TODO: DEV 
             //std::cout << "binded_stmt_queue is empty" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            insertEventLog(EventType::DB_LOOPED, myTime::getTimestamp(), 0);
+            //insertEventLog(EventType::DB_LOOPED, myTime::getTimestamp(), 0);
             continue;
         }
         // Get time elapsed since last query
@@ -245,11 +279,14 @@ bool FlightDatabase::executeTransaction() {
 }
 */
 
+/*
 bool FlightDatabase::executeTransaction() {
     if (sqlite3_exec(db, "BEGIN TRANSACTION", nullptr, nullptr, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to begin transaction: " << sqlite3_errmsg(db) << std::endl;
+        std::cout << "Failed to begin transaction: " << sqlite3_errmsg(db) << std::endl;
         return true;
     }
+
+// TODO: Add proccessing_vector for packets in a single transaction
 
     int transactions_sent = 0;
     while (!binded_stmt_queue.empty() && transactions_sent < TRANSACTION_MAX_BATCH_SIZE) {
@@ -258,13 +295,13 @@ bool FlightDatabase::executeTransaction() {
 
         int result = sqlite3_step(stmt);
         if (result != SQLITE_DONE) {
-            std::cerr << "Failed to execute statement: " << sqlite3_errmsg(db) << std::endl;
+            std::cout << "Failed to execute statement: " << sqlite3_errmsg(db) << std::endl;
             rollbackTransaction();
             return true;
         }
 
         if (sqlite3_reset(stmt) != SQLITE_OK) {
-            std::cerr << "Failed to reset statement: " << sqlite3_errmsg(db) << std::endl;
+            std::cout << "Failed to reset statement: " << sqlite3_errmsg(db) << std::endl;
             rollbackTransaction();
             return true;
         }
@@ -275,9 +312,69 @@ bool FlightDatabase::executeTransaction() {
     }
 
     if (sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to commit transaction: " << sqlite3_errmsg(db) << std::endl;
+        std::cout << "Failed to commit transaction: " << sqlite3_errmsg(db) << std::endl;
         rollbackTransaction();
         return true;
+    }
+
+    return false;
+}
+*/
+
+bool FlightDatabase::executeTransaction() {
+    if (sqlite3_exec(db, "BEGIN TRANSACTION", nullptr, nullptr, nullptr) != SQLITE_OK) {
+        std::cout << "Failed to begin transaction: " << sqlite3_errmsg(db) << std::endl;
+        return true;
+    }
+
+    int transactions_sent = 0;
+    bool error_occurred = false;
+    std::vector<DbStatement> processed_statements;
+
+    while (!binded_stmt_queue.empty() && transactions_sent < TRANSACTION_MAX_BATCH_SIZE) {
+        DbStatement lr = binded_stmt_queue.dequeue();
+        sqlite3_stmt* stmt = lr.stmt;
+
+        int result = sqlite3_step(stmt);
+        if (result != SQLITE_DONE) {
+            std::cout << "Failed to execute statement: " << sqlite3_errmsg(db) << std::endl;
+            error_occurred = true;
+            break;
+        }
+
+        if (sqlite3_reset(stmt) != SQLITE_OK) {
+            std::cout << "Failed to reset statement: " << sqlite3_errmsg(db) << std::endl;
+            error_occurred = true;
+            break;
+        }
+
+        processed_statements.push_back(lr);
+        last_trans = std::chrono::steady_clock::now();
+        transactions_sent++;
+    }
+
+    if (error_occurred) {
+        rollbackTransaction();
+        // Re-enqueue processed statements
+        for (auto it = processed_statements.rbegin(); it != processed_statements.rend(); ++it) {
+            binded_stmt_queue.enqueue(*it);
+        }
+        return true;
+    }
+
+    if (sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr) != SQLITE_OK) {
+        std::cout << "Failed to commit transaction: " << sqlite3_errmsg(db) << std::endl;
+        rollbackTransaction();
+        // Re-enqueue processed statements
+        for (auto it = processed_statements.rbegin(); it != processed_statements.rend(); ++it) {
+            binded_stmt_queue.enqueue(*it);
+        }
+        return true;
+    }
+
+    // Transaction successful, free the processed statements
+    for (const auto& lr : processed_statements) {
+        free_stmt_queues[static_cast<int>(lr.table)]->enqueue(lr.stmt);
     }
 
     return false;
@@ -446,8 +543,8 @@ bool FlightDatabase::insertEventLog(EventType event_type, uint32_t timestamp, ui
         return false;
     }
     DbStatement lr(StatementType::EVENT_LOG, free_event_log_stmt_queue.dequeue());
-    sqlite3_bind_int(lr.stmt, 1, static_cast<int>(event_type));
-    sqlite3_bind_int64(lr.stmt, 2, timestamp);
+    sqlite3_bind_int64(lr.stmt, 1, timestamp);
+    sqlite3_bind_int(lr.stmt, 2, static_cast<int>(event_type));
     sqlite3_bind_int64(lr.stmt, 3, data);
     binded_stmt_queue.enqueue(lr);
     return true;

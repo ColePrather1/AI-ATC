@@ -8,6 +8,7 @@
 #include "ControlModes/ControlModes.h"
 #include "Common.h"
 #include "Session.h"
+#include "Logging.h"
 
 //#include "common.h"
 //#include "session.h"
@@ -45,9 +46,9 @@ bool isDefault(uint8_t val) {}
     Creates bitmask of pressed buttons
 */
 
-/*
-void GameController::getButtonCombinationMask() {
-    GameController::buttonMask = 0;
+
+uint32_t GameController::getButtonCombinationMask() {
+    uint32_t buttonMask = 0;
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A)) buttonMask |= BTN_CROSS;
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B)) buttonMask |= BTN_CIRCLE;
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X)) buttonMask |= BTN_SQUARE;
@@ -61,8 +62,10 @@ void GameController::getButtonCombinationMask() {
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_GUIDE)) buttonMask |= BTN_PS;
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_TOUCHPAD)) buttonMask |= BTN_TOUCHPAD;
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_MISC1)) buttonMask |= BTN_MUTE;
+
+    return buttonMask;
 }
-*/
+
 
 
 //static GameController& getInstance() {
@@ -108,25 +111,11 @@ bool GameController::setup() {
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
     SDL_GameControllerEventState(SDL_ENABLE);
 
-
-    //controller = SDL_GameControllerOpen(0);
-    //if (controller == nullptr) {
-    //    return false;
-    //}
-    //return true;
-
-    if (waitForConnection()) {
-        std::cout << "Controller connected: " << SDL_GameControllerName(controller) << std::endl;
-    }
-    else {
-        std::cout << "Controller failed to connect. Ending program" << std::endl;
-        return false;
-    }
     return true;
 }
 
 void GameController::loop() {
-    while (Session::ctlr_loop_active.load(std::memory_order_acquire)) {
+    while (Session::ctlr_loop_active.load(std::memory_order_relaxed) && !Session::quit_flag.load(std::memory_order_relaxed))  {
         //std::cout << "GameController loop started" << std::endl;
         ////if (Session::quit_flag.load(std::memory_order_acquire) && !Session::ctlr_shtdwn.load(std::memory_order_acquire)) {
         ////    Session::ctlr_shtdwn.store(true, std::memory_order_release);
@@ -139,7 +128,15 @@ void GameController::loop() {
         //GameController::handleEvents();
         //
 
-        if (Session::ctlr_paired.load(std::memory_order_acquire)) {
+        // TODO: Fix button clicks to be 1 instead of tons
+        // TODO: Fix button clicks to be 1 instead of tons
+        // TODO: Fix button clicks to be 1 instead of tons
+
+        handleEvents();
+
+
+
+        if (Session::ctlr_paired.load(std::memory_order_relaxed)) {
             //std::cout << "Controller paired" << std::endl;
             //GameController::buttonMask = getButtonCombinationMask();
             //GameController::getButtonCombinationMask();
@@ -147,7 +144,7 @@ void GameController::loop() {
             //std::cout << "GameController loop active" << std::endl;
         // TODO: Create function pointer for each control mode to replace switch
         // TODO: Create function pointer for each control mode to replace switch
-         switch (Session::control_mode.load(std::memory_order_acquire)) {
+         switch (Session::control_mode.load(std::memory_order_relaxed)) {
              case ControlMode::MANUAL:
                 ManualControlMode::manualMode(buttonMask);
                  break;
@@ -175,21 +172,26 @@ void GameController::loop() {
              default:
                  break;
          }
+         //std::cout << "Outside of switch" << std::endl;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        //std::cout << "Outside of if" << std::endl;
+        //std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        SDL_Delay(2);  // Avoid busy-waiting
+        continue;
     }
 }
 
+/*
 uint32_t GameController::getButtonCombinationMask() {
     uint32_t buttonMask = static_cast<uint32_t>(0);
     if (SDL_GameControllerGetButton(this->controller, SDL_CONTROLLER_BUTTON_A)) {
-        buttonMask |= BTN_CROSS;
         std::cout << "Cross pressed" << std::endl;
+        buttonMask |= BTN_CROSS;
     }
-    if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B)) { 
+    if (SDL_GameControllerGetButton(this->controller, SDL_CONTROLLER_BUTTON_B)) {
+        std::cout << "Circle pressed" << std::endl; 
         buttonMask |= BTN_CIRCLE; 
-        std::cout << "Circle pressed" << std::endl; }
-
+    }
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X)) {
         buttonMask |= BTN_SQUARE;
         std::cout << "Square pressed" << std::endl;
@@ -234,11 +236,11 @@ uint32_t GameController::getButtonCombinationMask() {
         buttonMask |= BTN_MUTE;
         std::cout << "Mute pressed" << std::endl;
     }
-
+    
     return buttonMask;
 }
 
-
+*/
 
 /*
 bool GameController::tryConnect(){
@@ -401,6 +403,8 @@ void GameController::handleEvents() {
                     controller = SDL_GameControllerOpen(e.cdevice.which);
                     if (controller) {
                         std::cout << "Controller connected" << std::endl;
+                        Session::ctlr_paired.store(true, std::memory_order_release);
+                        Logging::insertEventLog(EventType::CONTROLLER_CONNECTED);
                     }
                 }
                 break;
@@ -409,68 +413,36 @@ void GameController::handleEvents() {
                     SDL_GameControllerClose(controller);
                     controller = nullptr;
                     std::cout << "Controller disconnected" << std::endl;
+                    Session::ctlr_paired.store(false, std::memory_order_release);
+                    Logging::insertEventLog(EventType::CONTROLLER_DISCONNECTED);
                 }
                 break;
+            case SDL_CONTROLLERBUTTONDOWN:
+                Logging::insertEventLog(EventType::CONTROLLER_CLICKED);
             default:
                 break;
         }
         //it++;
 
-        if (!controller) {
-            for (int i = 0; i < SDL_NumJoysticks(); ++i) {
-                if (SDL_IsGameController(i)) {
-                    controller = SDL_GameControllerOpen(i);
-                    if (controller) {
-                        std::cout << "Controller reconnected" << std::endl;
-                        break;
-                    }
-                }
-            }
-        }
-        SDL_Delay(100);  // Avoid busy-waiting
+        //if (!controller) {
+        //    for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+        //        if (SDL_IsGameController(i)) {
+        //            controller = SDL_GameControllerOpen(i);
+        //            if (controller) {
+        //                std::cout << "Controller reconnected" << std::endl;
+        //                Session::ctlr_paired.store(true, std::memory_order_release);
+        //                break;
+        //            }
+        //        }
+        //    }
+        //}
+        //SDL_Delay(2);  // Avoid busy-waiting
     }
 
     return;
 }
 
-/*
-void GameController::handleEvents() {
-    SDL_Event e;
-    int it = 0;
-    while (SDL_PollEvent(&e) != 0 && it < 10) {
-        switch (e.type) {
-            case SDL_KEYDOWN:
-                if (e.key.keysym.sym == SDLK_q) {
-                    Session::quit_flag.store(true, std::memory_order_release);
-                }
-                break;
-            case SDL_QUIT:
-                Session::quit_flag.store(true, std::memory_order_release);
-                break;
-            case SDL_CONTROLLERDEVICEADDED:
-                if (!controller) {
-                    controller = SDL_GameControllerOpen(event.cdevice.which);
-                    if (controller) {
-                        std::cout << "Controller connected" << std::endl;
-                    }
-                }
-                break;
-            case SDL_CONTROLLERDEVICEREMOVED:
-                if (controller && event.cdevice.which == SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller))) {
-                    SDL_GameControllerClose(controller);
-                    controller = nullptr;
-                    std::cout << "Controller disconnected" << std::endl;
-                }
-                break;
-            default:
-                break;
-        }
-        it++;
-    }
 
-    return false;
-}
-*/
 
 
 

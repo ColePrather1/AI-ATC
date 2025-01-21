@@ -33,9 +33,21 @@
 
 inline namespace Session {
 
+// DB Tools
+    inline std::atomic<bool> sql_finalized {false}, sql_closed {false};
+
 // General Parameters
-    inline std::atomic<bool> quit_flag {false}, logger_started {false};
-    inline std::atomic<bool> logger_running {false}, logger_thread_active {false};
+    inline std::atomic<bool> program_finished {false};
+    inline std::atomic<bool> quit_flag {false};
+    inline std::atomic<bool> logger_started {false}; // TODO: Transition to ServiceStates within respective files
+    //  logger_running {false}, logger_thread_active {false},   // TODO: Stop using all these
+// Service Active
+    inline std::atomic<bool> atc_active {false};
+    inline std::atomic<bool> ctlr_active {false};
+    inline std::atomic<bool> logger_active {false};
+    inline std::atomic<bool> rf_rx_active {false};
+    inline std::atomic<bool> rf_tx_active {false};
+    inline std::atomic<bool> process_active {false};
 
 // Thread Loop Active
     //inline std::atomic<bool> atc_loop_active {false};
@@ -43,7 +55,7 @@ inline namespace Session {
     inline std::atomic<bool> logger_loop_active {false};
     inline std::atomic<bool> rf_rx_loop_active {false};
     inline std::atomic<bool> rf_tx_loop_active {false};
-    inline std::atomic<bool> computer_loop_active {false};
+    inline std::atomic<bool> process_loop_active {false};
 
 // Thread Shutdown In-Progress
     inline std::atomic<bool> atc_shtdwn {false};    // True when at least one of the below is true
@@ -51,7 +63,7 @@ inline namespace Session {
     inline std::atomic<bool> logger_shtdwn {false};
     inline std::atomic<bool> rf_rx_shtdwn {false};
     inline std::atomic<bool> rf_tx_shtdwn {false};
-    inline std::atomic<bool> computer_shtdwn {false};
+    inline std::atomic<bool> process_shtdwn {false};
 
 // Thread Finished Flag
     inline std::atomic<bool> atc_finished {false};
@@ -59,7 +71,7 @@ inline namespace Session {
     inline std::atomic<bool> logger_finished {false};
     inline std::atomic<bool> rf_rx_finished {false};
     inline std::atomic<bool> rf_tx_finished {false};
-    inline std::atomic<bool> computer_finished {false};
+    inline std::atomic<bool> process_finished {false};
 
 
 // Controller Parameters
@@ -136,11 +148,11 @@ inline namespace Session {
 
 
 // User HUD Parameters
-    inline std::atomic<bool> paired{false}, ctlr_paired{false}, ctlr_active{false};
+    inline std::atomic<bool> paired{false}, ctlr_paired{false};
    
 // Radio Parameters
     inline std::atomic<int> rf_tx_active_pipe {5};
-    inline std::atomic<bool> rf_rx_active {false}, rf_tx_active {false};
+    //inline std::atomic<bool> rf_rx_active {false}, rf_tx_active {false};
 
 
 

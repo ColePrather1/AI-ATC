@@ -66,7 +66,8 @@ ThreadSafeQueue<std::span<std::byte>> rx_buffer_queue;
 
 bool rx_setup() {
     // Initialize receiving radio
-    RF24 radio_rx(23, 1); // CE, CSN pins for receiving radio
+    //RF24 radio_rx(23, 1); // CE, CSN pins for receiving radio
+    RF24 radio_rx(23, 10); // CE, CSN pins for receiving radio
     if (!radio_rx.begin()) {
         std::cout << "Failed to initialize receiving radio" << std::endl;
         return false;
