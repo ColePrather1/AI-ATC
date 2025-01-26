@@ -13,7 +13,6 @@ template<typename T>
 class ThreadSafeQueue {
 private:
     std::queue<T> queue_;
-    //std::mutex mutex_;
     mutable std::mutex mutex_;
     std::condition_variable cond_;
     int max_items = 0;
@@ -32,9 +31,8 @@ public:
     }
 
 
-/*
-TODO: Implement max items // Won't be exceeded as of now
-*/
+
+    // TODO: Implement max items // Won't be exceeded as of now
     /*
     void tryEnqueue(T value) {
         try {
@@ -72,7 +70,6 @@ TODO: Implement max items // Won't be exceeded as of now
         return true;
     }
 
-
     T dequeue() {
         std::unique_lock<std::mutex> lock(mutex_);
         cond_.wait(lock, [this] { return !queue_.empty(); });
@@ -81,28 +78,6 @@ TODO: Implement max items // Won't be exceeded as of now
         --size;
         return item;
     }
-
-/*
-    std::optional<T> pop() {
-        std::unique_lock<std::mutex> lock(mutex_);
-        if (queue_.empty()) {
-            return std::nullopt;
-        }
-        T item = queue_.front();
-        queue_.pop();
-        return item;
-    }
-*/
-
-/**
- * Checks if the queue is empty.
- * 
- * This method acquires a lock on the mutex to ensure thread-safety
- * while accessing the queue. It returns true if the queue is empty,
- * otherwise false.
- * 
- * @return True if the queue is empty, false otherwise.
- */
 
     bool empty() const {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -115,35 +90,5 @@ TODO: Implement max items // Won't be exceeded as of now
     }
 
 };
-
-
-
-/*
-
-class ThreadSafeQueue {
-private:
-    std::queue<DataPacket> queue;
-    mutable std::mutex mutex;
-    std::condition_variable cond;
-
-public:
-    void push(DataPacket value) {
-        std::lock_guard<std::mutex> lock(mutex);
-        queue.push(std::move(value));
-        cond.notify_all();
-    }
-
-    bool pop(DataPacket& value) {
-        std::unique_lock<std::mutex> lock(mutex);
-        cond.wait(lock, [this] { return !queue.empty(); });
-        value = std::move(queue.front());
-        queue.pop();
-        return true;
-    }
-};
-
-
-*/
-
 
 #endif // THREAD_SAFE_QUEUE_H

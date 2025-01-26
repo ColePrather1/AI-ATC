@@ -4,37 +4,31 @@
 #include "GameController.h"
 #include "Common.h"
 #include "Session.h"
+#include "SessionControl.h"
 #include "Logging.h"
-//#include <SDL2/SDL.h>
 
-void PairingControlMode::pairingMode(uint32_t mask) {
-    //send_features();
-    send_btns(mask);
-}
-
-void PairingControlMode::send_features() {}
+void PairingControlMode::processFeatures() {}
 
 
 
-void PairingControlMode::send_btns(uint32_t mask) {
+void PairingControlMode::processEvent(uint32_t mask) {
     if (mask == 0) {
         return; // No buttons are pressed , remove clutter
     }
     std::cout << "Button mask: " << mask << std::endl;
     std::cout << "Button mask (int): " << static_cast<uint32_t>(mask) << std::endl;
     switch (mask) {
-        // (A)
+        // (A)  Pair ATC & Plane
         case BTN_CROSS:
-        //TODO: Only for Dev & Testing purposes
             std::cout << "Cross button pressed" << std::endl;
-            Session::control_mode.store(ControlMode::MANUAL, std::memory_order_acquire);
-            Logging::insertEventLog(EventType::CONTROL_MODE_CHANGE_MANUAL, static_cast<uint8_t>(ControlMode::MANUAL));
-            std::cout << "ControlMode set to MANUAL" << std::endl;
+
             break;
         
-        // (B)
+        // (B) Set to MANUAL
         case BTN_CIRCLE:
+        //TODO: Only for Dev & Testing purposes
             std::cout << "Circle button pressed" << std::endl;
+            setControlMode(ControlMode::MANUAL);
             break;
         
         // (X)
@@ -48,7 +42,6 @@ void PairingControlMode::send_btns(uint32_t mask) {
             break;
 
         // (Start)
-        // (Start) Pair ATC & Plane
         case BTN_OPTIONS:
             std::cout << "Options button pressed" << std::endl;
             std::cout << "START button pressed" << std::endl;
@@ -88,6 +81,10 @@ void PairingControlMode::send_btns(uint32_t mask) {
         case BTN_R3:
             std::cout << "R3 button pressed" << std::endl;
             std::cout << "RIGHT STICK button pressed" << std::endl;
+            break;
+
+        case (BTN_SQUARE | BTN_CIRCLE):
+            std::cout << "Square + Circle combination pressed" << std::endl;
             break;
 
         // (Start + Pause)

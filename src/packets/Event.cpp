@@ -6,6 +6,8 @@
 
 #include <chrono>
 
+#include <cstdint>
+
 
 //#include "Bitmask.h"
 
@@ -18,7 +20,12 @@
 //#include "../include/Logging.h"
 
 
-EventPacket::EventPacket(char hdr, EventType event_type) : event_type(event_type), Packet(PacketType::EVENT, hdr) {}
+EventPacket::EventPacket(char hdr, EventType event_type) : Packet(PacketType::EVENT, hdr) {
+    this->event_type = event_type;
+    payload.push_back(static_cast<uint8_t>(event_type));
+    payload.shrink_to_fit();
+    payload[2] = static_cast<uint8_t>(payload.size());
+}
 
 
 void EventPacket::process(){

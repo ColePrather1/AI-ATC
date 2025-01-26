@@ -5,8 +5,8 @@
 #include <cstdint>
 
 namespace RecoveryControlMode {
-    extern void recoveryMode(uint32_t mask);
-    extern void recovery_send_btns(uint32_t mask);
+    extern void processEvent(uint32_t mask);
+    extern void processFeatures();
 }
 
 #endif // RECOVERYCONTROLMODE_H

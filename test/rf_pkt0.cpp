@@ -1,3 +1,7 @@
+
+// g++ rf_pkt0.cpp -o rf_pkt0 -lrf24
+
+
 #include <RF24/RF24.h>
 #include <RF24/utility/SPIDEV/spi.h>
 #include <iostream>
@@ -19,6 +23,8 @@ void setup() {
         return;
     }
     radio0.setPALevel(RF24_PA_LOW);
+    radio0.setChannel(76);
+    radio0.setDataRate(RF24_250KBPS);
     radio0.openWritingPipe(pipes[0]);
     radio0.stopListening();
     std::cout << "radio0 initialized" << std::endl;
@@ -30,6 +36,8 @@ void setup() {
         return;
     }  
     radio1.setPALevel(RF24_PA_LOW);
+    radio1.setChannel(76);
+    radio1.setDataRate(RF24_250KBPS);
     radio1.openWritingPipe(pipes[1]);
     radio1.stopListening();
     std::cout << "radio1 initialized" << std::endl;

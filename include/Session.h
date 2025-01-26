@@ -9,19 +9,7 @@
 #include <cstdint>
 #include "GPS_Coordinate.h"
 
-//#include <mutex>
-
-//#include "ThreadSafeQueue.h"
-//#include "QuickThread.h"
-
-//#include "../include/packets/packets.h"
-//#include "packets/packets.h"
-//#include "ControllerData.h"
-
-
 //#include "FlightSession.h"
-//#include "SQL.h"
-
 //#include "Bitmask.h"
 
 
@@ -86,9 +74,6 @@ inline namespace Session {
     inline std::atomic<uint16_t> plane_gps_alt;
     inline std::atomic<double> plane_gps_lat, plane_gps_lon;    // TODO: in Packets & SQL, fix Lat/Lon types from int32_t to double
 
-
-
-
 // Plane Parameters
     inline std::atomic<uint8_t> rudder_val, aileron_left_val, aileron_right_val, elevator_val, throttle_val, throttle_lock_val;
     inline std::array<uint8_t, NUM_FEATS> servo_defaults;
@@ -108,12 +93,7 @@ inline namespace Session {
                       isWaypointSet,
                       isEnrouteToWaypoint,
                       isCircleWaypoint,
-                      //isWaypointActive,
                       //isWaypointUpdated,
-
-                      fixed_altitude, 
-                      fixed_heading,
-                      fixed_speed,
 
                       imu_active,
                       imu_fail,
@@ -128,7 +108,6 @@ inline namespace Session {
                       isMotorSpinning
                       ;
 
-
     inline std::atomic<uint16_t> airplane_current_gps_heading, 
                           airplane_current_gps_speed;
 
@@ -138,8 +117,8 @@ inline namespace Session {
     inline std::atomic<uint16_t> fixed_plane_heading, fixed_plane_speed, fixed_plane_altitude;
     inline std::atomic<uint32_t> waypoint_lat, waypoint_lon, waypoint_alt;
 
-    //std::atomic<double> atc_pilot_distance_meters;     // TODO: in Packets & SQL, fix Lat/Lon types from int32_t to double           // ====  std::atomic<unsigned short>
-    inline std::atomic<uint16_t> atc_pilot_distance_meters;      // ====  std::atomic<unsigned short>
+    //std::atomic<double> atc_pilot_distance_meters;     // TODO: in Packets & SQL, fix Lat/Lon types from int32_t to double
+    inline std::atomic<uint16_t> atc_pilot_distance_meters;
     inline std::atomic<uint32_t> atc_pilot_distance_meters_squared;
 
 // uint16_t Bitmasks
@@ -148,12 +127,10 @@ inline namespace Session {
 
 
 // User HUD Parameters
-    inline std::atomic<bool> paired{false}, ctlr_paired{false};
+    inline std::atomic<bool> paired{false}, ctlr_paired{false}, plane_connected{false};
    
 // Radio Parameters
     inline std::atomic<int> rf_tx_active_pipe {5};
-    //inline std::atomic<bool> rf_rx_active {false}, rf_tx_active {false};
-
 
 
 // Functions

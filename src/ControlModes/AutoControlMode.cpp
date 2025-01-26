@@ -3,6 +3,6 @@
 
 
 
-//void AutoControlMode::processFeatures(){}
+void AutoControlMode::processFeatures(){}
 
-void AutoControlMode::processEvent(){}
+void AutoControlMode::processEvent(uint32_t mask){}

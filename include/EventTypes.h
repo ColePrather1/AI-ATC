@@ -4,10 +4,6 @@
 #pragma once
 #include <cstdint>
 
-//#include "SyncedObjects.h"
-
-// TODO: Implement union for EventTypes for easier event type handling
-
 enum class EventType : uint8_t {
 
 // System Events
@@ -145,7 +141,7 @@ enum class EventType : uint8_t {
     FLIGHT_PHASE_CHANGE_TOUCHDOWN = 118,
     FLIGHT_PHASE_CHANGE_ROLL_OUT = 119,
     FLIGHT_PHASE_CHANGE_GO_AROUND = 120,
-    FLIGHT_PHASE_CHANGE_HOLDING_PATTERN = 121,
+    FLIGHT_PHASE_CHANGE_HOLDING_PATTERN = 121,      // TODO: possibly remove
     FLIGHT_PHASE_CHANGE_EMERGENCY_LANDING = 122,
     FLIGHT_PHASE_CHANGE_COMPLETE_FLIGHT = 123,
 
@@ -175,7 +171,17 @@ enum class EventType : uint8_t {
 // Controller Events
     CONTROLLER_CONNECTED = 143,
     CONTROLLER_DISCONNECTED = 144,
-    CONTROLLER_CLICKED = 145
+    CONTROLLER_CLICKED = 145,
+
+// Connection Events
+    //PAIR_ATC_SYN = 146,
+    //PAIR_ATC_SYN_ACK = 147,
+    //PAIR_ATC_ACK = 148,
+    //PAIR_ATC_SYN_OK = 149,
+
+    PAIR_ATC_REQUEST = 150,         // To plane
+    PAIR_ATC_REQUEST_ACK = 151,     // From plane
+    PAIR_ATC_REQUEST_OK = 152,      // From plane
 
 };
 

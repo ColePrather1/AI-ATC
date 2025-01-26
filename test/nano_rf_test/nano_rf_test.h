@@ -10,40 +10,40 @@
 
 
 enum class PacketType : uint8_t {
-    BASE,
-    // System Data
-    //SYSTEM,
-    //STATUS,
-    PID,
-    // Pairing
-    //PAIRING,
+    BASE = 0,
+    PID = 1,
+
     // Control Modes
-    AUTO,
-    ASSIST,
-    MANUAL,
+    AUTO = 2,
+    ASSIST = 3,
+    MANUAL = 4,
+
     // IMU Data     // (d, x,y,z) in each packet
-    ACCEL,
-    GYRO,
-    MAGNET,
+    ACCEL = 5,
+    GYRO = 6,
+    MAGNET = 7,
+
     // GPS Data
-    GPS,
-    GPS_ENV,
+    GPS = 8,
+    GPS_ENV = 9,
+
     // Sensor Data
-    BAROMETER,       // LPS22HB
-    TEMP_HUMID,      // HS3003
+    BAROMETER = 10,       // LPS22HB
+    TEMP_HUMID = 11,      // HS3003
+
     //MIC_PACKET,           // MP34DT06JTR
     //GESTURE_PACKET,       // APDS9960
     //LIDAR_PACKET,         // TF-Luna
     // Acknowledgement
     //ACK,
-    EVENT,
+    EVENT = 12,
     //EVENT_DATA,
-    EVENT_DATA8,
-    EVENT_DATA16,
-    EVENT_DATA32,
-    EVENT_DATA64,
-    EVENT_TIMED,
-    EVENT_TIMED_DATA
+    EVENT_DATA8 = 13,
+    EVENT_DATA16 = 14,
+    EVENT_DATA32 = 15,
+    EVENT_DATA64 = 16,
+    EVENT_TIMED = 17,
+    EVENT_TIMED_DATA = 18
 };
 
 

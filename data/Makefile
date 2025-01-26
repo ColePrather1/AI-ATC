@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/atc/test4
+CMAKE_SOURCE_DIR = /home/atc/test10
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/atc/test4/build
+CMAKE_BINARY_DIR = /home/atc/test10/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/atc/test4/build/CMakeFiles /home/atc/test4/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/atc/test10/build/CMakeFiles /home/atc/test10/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/atc/test4/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/atc/test10/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -921,30 +921,6 @@ src/packets/Temp-Humid.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI-ATC.dir/build.make CMakeFiles/AI-ATC.dir/src/packets/Temp-Humid.cpp.s
 .PHONY : src/packets/Temp-Humid.cpp.s
 
-src/threads/rx_processing_queue.o: src/threads/rx_processing_queue.cpp.o
-.PHONY : src/threads/rx_processing_queue.o
-
-# target to build an object file
-src/threads/rx_processing_queue.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI-ATC.dir/build.make CMakeFiles/AI-ATC.dir/src/threads/rx_processing_queue.cpp.o
-.PHONY : src/threads/rx_processing_queue.cpp.o
-
-src/threads/rx_processing_queue.i: src/threads/rx_processing_queue.cpp.i
-.PHONY : src/threads/rx_processing_queue.i
-
-# target to preprocess a source file
-src/threads/rx_processing_queue.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI-ATC.dir/build.make CMakeFiles/AI-ATC.dir/src/threads/rx_processing_queue.cpp.i
-.PHONY : src/threads/rx_processing_queue.cpp.i
-
-src/threads/rx_processing_queue.s: src/threads/rx_processing_queue.cpp.s
-.PHONY : src/threads/rx_processing_queue.s
-
-# target to generate assembly for a file
-src/threads/rx_processing_queue.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI-ATC.dir/build.make CMakeFiles/AI-ATC.dir/src/threads/rx_processing_queue.cpp.s
-.PHONY : src/threads/rx_processing_queue.cpp.s
-
 src/threads/thread_compute.o: src/threads/thread_compute.cpp.o
 .PHONY : src/threads/thread_compute.o
 
@@ -968,30 +944,6 @@ src/threads/thread_compute.s: src/threads/thread_compute.cpp.s
 src/threads/thread_compute.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI-ATC.dir/build.make CMakeFiles/AI-ATC.dir/src/threads/thread_compute.cpp.s
 .PHONY : src/threads/thread_compute.cpp.s
-
-src/threads/thread_controller.o: src/threads/thread_controller.cpp.o
-.PHONY : src/threads/thread_controller.o
-
-# target to build an object file
-src/threads/thread_controller.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI-ATC.dir/build.make CMakeFiles/AI-ATC.dir/src/threads/thread_controller.cpp.o
-.PHONY : src/threads/thread_controller.cpp.o
-
-src/threads/thread_controller.i: src/threads/thread_controller.cpp.i
-.PHONY : src/threads/thread_controller.i
-
-# target to preprocess a source file
-src/threads/thread_controller.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI-ATC.dir/build.make CMakeFiles/AI-ATC.dir/src/threads/thread_controller.cpp.i
-.PHONY : src/threads/thread_controller.cpp.i
-
-src/threads/thread_controller.s: src/threads/thread_controller.cpp.s
-.PHONY : src/threads/thread_controller.s
-
-# target to generate assembly for a file
-src/threads/thread_controller.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI-ATC.dir/build.make CMakeFiles/AI-ATC.dir/src/threads/thread_controller.cpp.s
-.PHONY : src/threads/thread_controller.cpp.s
 
 src/threads/thread_event_handler.o: src/threads/thread_event_handler.cpp.o
 .PHONY : src/threads/thread_event_handler.o
@@ -1197,15 +1149,9 @@ help:
 	@echo "... src/packets/Temp-Humid.o"
 	@echo "... src/packets/Temp-Humid.i"
 	@echo "... src/packets/Temp-Humid.s"
-	@echo "... src/threads/rx_processing_queue.o"
-	@echo "... src/threads/rx_processing_queue.i"
-	@echo "... src/threads/rx_processing_queue.s"
 	@echo "... src/threads/thread_compute.o"
 	@echo "... src/threads/thread_compute.i"
 	@echo "... src/threads/thread_compute.s"
-	@echo "... src/threads/thread_controller.o"
-	@echo "... src/threads/thread_controller.i"
-	@echo "... src/threads/thread_controller.s"
 	@echo "... src/threads/thread_event_handler.o"
 	@echo "... src/threads/thread_event_handler.i"
 	@echo "... src/threads/thread_event_handler.s"

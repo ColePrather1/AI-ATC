@@ -5,7 +5,6 @@
 #include "packets/packets.h"
 
 namespace RadioTx {
-    //ThreadSafeQueue<Packet> tx_queue;
     inline ThreadSafeQueue<Packet*> tx_queue(100);
 }
 

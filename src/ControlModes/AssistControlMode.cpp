@@ -14,5 +14,5 @@ TODO: Test Right X-Y Methods with wings attached
 
 
 void AssistControlMode::processFeatures() {}
-void AssistControlMode::processEvent() {}
+void AssistControlMode::processEvent(uint32_t mask) {}
 

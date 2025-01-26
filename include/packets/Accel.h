@@ -7,8 +7,7 @@
 
 class AccelPacket : public Packet {
 public:
-    //PacketType type = PacketType::ACCEL;
-    int16_t x, y, z;  // = x, y, z * 100 (e^2)
+    int16_t x, y, z;  // = x, y, z * 100 
     //uint16_t x, y, z;
 
     // constructor for 3 inputs

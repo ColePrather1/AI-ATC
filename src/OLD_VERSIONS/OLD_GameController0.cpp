@@ -11,23 +11,53 @@
 #include "Logging.h"
 #include <bitset>
 
-GameController::GameController() {}
-
+GameController::GameController() {
+    //this->featureFunction = this->waiting;
+    //this->buttonFunction = PairingControlMode::send_btns;
+}
 GameController::GameController(uint8_t controller_id) {
     this->controller_id = controller_id;
+    //this->featureFunction = this->waiting;
+    //this->buttonFunction = PairingControlMode::send_btns;
 }
 
+//#include "common.h"
+//#include "session.h"
+//#include "atc.h"
+//#include <SDL2/SDL.h>
+//#include "atc_rf.h"
+
+//GameController::controller = SDL_GameController*(nullptr);
+
+//using namespace GameController;
+
+// GameController::
+
+//SDL_GameController* controller = nullptr;
+//GameController::controller_defaults = {0, 0, 0, 0, 0};
+
+//uint8_t 
+//extern uint8_t controller_defaults = {0, 90, 90, 90, 90};
+//uble plane_default_cruise = {0,0,0,0,0,0};
 
 //void calibrate_controller() {
-//    controller_defaults[0] = (int16_t)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
-//    controller_defaults[1] = (int16_t)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
-//    controller_defaults[2] = (int16_t)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
-//    controller_defaults[3] = (int16_t)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+//    controller_defaults[0] = (uint8_t)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
+//    controller_defaults[1] = (uint8_t)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+//    controller_defaults[2] = (uint8_t)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+//    controller_defaults[3] = (uint8_t)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
 //}
 
 
+/*
+bool isDefault(uint8_t val) {}
+*/
 
-// Creates bitmask of pressed buttons
+
+/*
+    Creates bitmask of pressed buttons
+*/
+
+
 uint32_t GameController::getButtonCombinationMask() {
     uint32_t buttonMask = 0;
     if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A)) buttonMask |= BTN_CROSS;
@@ -47,8 +77,24 @@ uint32_t GameController::getButtonCombinationMask() {
     return buttonMask;
 }
 
-// Returns true if successful
+//uint32_t GameController::getButtons() {
+//    return buttons.exchange(NULL_BUTTONS, std::memory_order_release);
+//}
+
+
+
+
+//static GameController& getInstance() {
+//        static GameController instance;
+//        return instance;
+//}
+
+
+
+
+
 bool GameController::start() {
+
     if (!setup()) {
         return false;
     }
@@ -60,12 +106,17 @@ bool GameController::start() {
     return true;
 }
 
-// Returns true if successful
 bool GameController::stop() {
+    Session::ctlr_loop_active.store(false, std::memory_order_release);
     if (controller_shutdown()) {
-        std::cout << "Controller shutdown finished" << std::endl;
+        std::cout << "Controller shutdown returned" << std::endl;
+        controller_thread.join();
+        std::cout << "Controller thread 0 joined" << std::endl;
+        event_thread.join();
+        std::cout << "Controller thread 1 joined" << std::endl;
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool GameController::setup() {
@@ -75,6 +126,7 @@ bool GameController::setup() {
         std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
         return false;
     }
+
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
@@ -83,24 +135,53 @@ bool GameController::setup() {
     return true;
 }
 
-// TODO: Implement pause, only enable in these modes
-// TODO: Redo this
+// TODO: Delete
+/*
+void GameController::waiting() {
+    ControlMode mode = Session::control_mode.load(std::memory_order_relaxed);
+    while (mode != ControlMode::MANUAL 
+        && mode != ControlMode::ASSIST
+        && mode != ControlMode::TAXI)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    } // Wait for an appropriate control mode    
+    
+    switch (Session::control_mode.load(std::memory_order_relaxed)) {
+       // 8 Modes total, 5 fully-automated, 3 user-required
+       case ControlMode::MANUAL:
+          featureFunction = ManualControlMode::manualMode;
+           break;
+       case ControlMode::ASSIST:
+          featureFunction = AssistControlMode::assistMode;
+           break;
+       case ControlMode::TAXI:
+          featureFunction = TaxiControlMode::taxiMode;
+           break;
+        default:
+          featureFunction = waiting;
+           break;
+    }
+}
+*/
+
+
+// TODO: Implement pause, only enable in these modes    // TODO: Go back to switch-case if errors
 void GameController::loop() {
-    features_active.store(true, std::memory_order_release);
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    while (features_active.load(std::memory_order_relaxed)
+    while (Session::ctlr_loop_active.load(std::memory_order_relaxed)
     && !Session::quit_flag.load(std::memory_order_relaxed))  {
+
         ControlMode mode = Session::control_mode.load(std::memory_order_relaxed);
-        while ( (mode != ControlMode::MANUAL && mode != ControlMode::ASSIST && mode != ControlMode::TAXI)   // While control mode is not appropriate
-            && features_active.load(std::memory_order_relaxed)                                              // While parent loop is active          
-            && !Session::quit_flag.load(std::memory_order_relaxed) )                                        // While quit_flag is false (i.e. program running)
+        while (mode != ControlMode::MANUAL 
+            && mode != ControlMode::ASSIST
+            && mode != ControlMode::TAXI
+            || Session::ctlr_paired.load(std::memory_order_relaxed) == false
+            && Session::ctlr_loop_active.load(std::memory_order_relaxed)
+            && !Session::quit_flag.load(std::memory_order_relaxed) ) 
         {
-            mode = Session::control_mode.load(std::memory_order_relaxed);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         } // Wait for an appropriate control mode    
 
-
-        switch (mode) {
+        switch (Session::control_mode.load(std::memory_order_relaxed)) {
            // 8 Modes total, 5 fully-automated, 3 user-required
            case ControlMode::MANUAL:
               ManualControlMode::processFeatures();
@@ -115,13 +196,8 @@ void GameController::loop() {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
                break;
         }   
-        //std::this_thread::sleep_for(std::chrono::milliseconds(50));     // Slow down a bit, 20Hz
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));     // Slow packets to testing receiver
         continue;
     }
-    features_active.store(false, std::memory_order_release);
-    features_finished.store(true, std::memory_order_release);
-    return;
 }
 
 
@@ -159,44 +235,100 @@ void GameController::handleButtons(uint32_t& buttonMask) {
 }
 */
 
+/*
+bool GameController::waitForConnection(){
+    while (Session::ctlr_paired.load(std::memory_order_relaxed) == false) {
+        if (Session::quit_flag.load(std::memory_order_acquire)) {
+            return false;
+        }
+
+        for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+            if (SDL_IsGameController(i)) {
+                controller = SDL_GameControllerOpen(i);
+                if (controller != nullptr) {
+                    std::cout << "Found game controller: " << SDL_GameControllerName(controller) << std::endl;
+                    Session::ctlr_paired.store(true, std::memory_order_release);
+                    // TODO: Implement ctrl_paired SQL logging event 
+                    break;
+                }
+                else {
+                    std::cout << "Unable to open game controller: " << SDL_GetError() << std::endl;
+                    continue;
+                }
+            }
+        }
+        std::cout << "Waiting for controller..." << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));    // Wait 5 seconds
+        continue;
+    }
+
+
+    
+    //if (SDL_NumJoysticks() < 1) {
+    ////if //(NumGameControllers() < 1) {
+    //    std::cout << "Warning: No joysticks connected!" << std::endl;
+    //    std::cout << "Waiting for controller..." << std::endl;
+    //    while(SDL_NumJoysticks() < 1){
+    //        //usleep(10000);
+    //        std::this_thread::sleep_for(std::chrono::milliseconds(5000));    // Wait 5 seconds
+    //        if (Session::quit_flag.load(std::memory_order_acquire)) {
+    //            return false;
+    //        }
+    //        std::cout << "Warning: No joysticks connected! (retry)" << std::endl;
+    //        continue;
+    //    }
+    //    std::cout << "While loop broke" << std::endl;
+
+    //} else {
+    //    controller = SDL_GameControllerOpen(0);
+    //    if (controller == nullptr) {
+    //        std::cout << "Warning: Unable to open game controller! SDL Error: " << SDL_GetError() << std::endl;
+    //    }
+    //    std::cout << "Controller connected: " << SDL_GameControllerName(controller) << std::endl;
+    //}
+    
+
+    return true;
+}
+
+
+bool GameController::controller_setup() {
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
+    // Initialize controller
+    if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0) {       // SDL_INIT_JOYSTICK | 
+        std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
+    SDL_GameControllerEventState(SDL_ENABLE);
+
+
+    //controller = SDL_GameControllerOpen(0);
+    //if (controller == nullptr) {
+    //    return false;
+    //}
+    //return true;
+
+
+    if (waitForConnection()) {
+        std::cout << "Controller connected: " << SDL_GameControllerName(controller) << std::endl;
+    }
+    else {
+        std::cout << "Controller failed to connect. Ending program" << std::endl;
+        return false;
+    }
+
+
+    return true;
+}
+*/
 
 // Return true -> controller shutdown successfully
 bool GameController::controller_shutdown() {
     Session::ctlr_shtdwn.store(true, std::memory_order_release);
-    //Session::ctlr_loop_active.store(false, std::memory_order_release);
-    events_active.store(false, std::memory_order_release);
-    features_active.store(false, std::memory_order_release);
-
-    //std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-    //std::cout << "Controller shutdown returned" << std::endl;
-
-    while (!events_finished.load(std::memory_order_relaxed)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
-    if (event_thread.joinable()){
-        event_thread.join();
-        //std::cout << "Controller thread 1 joined" << std::endl;
-    }
-    else {
-        std::cout << "Controller event thread not joinable" << std::endl;
-    }
-    
-    //std::cout << "prior to thread 1 wait" << std::endl;
-    while (!features_finished.load(std::memory_order_relaxed)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
-    //std:: cout << "prior to thread 0 joinable check" << std::endl;    
-    if (controller_thread.joinable()){
-        //std::cout << "prior to thread 0 join" << std::endl;
-        controller_thread.join();
-        //std::cout << "Controller thread 0 joined" << std::endl;
-    }
-    else {
-        std::cout << "Controller features thread not joinable" << std::endl;
-    }
-
     if (controller) {
         SDL_GameControllerClose(controller);
         controller = nullptr;
@@ -209,10 +341,9 @@ bool GameController::controller_shutdown() {
         SDL_Quit();
     }
     Session::ctlr_shtdwn.store(false, std::memory_order_release);
-    Session::ctlr_loop_active.store(false, std::memory_order_release);
+    std::cout << "Controller shutdown finished" << std::endl;
     return true;
 }
-
 
 
 void GameController::processEvent(uint32_t& buttonMask) {
@@ -250,9 +381,7 @@ void GameController::processEvent(uint32_t& buttonMask) {
 
 
 void GameController::handleEvents() {
-    events_active.store(true, std::memory_order_release);
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    while (events_active.load(std::memory_order_relaxed)
+    while (Session::ctlr_loop_active.load(std::memory_order_relaxed)
     && !Session::quit_flag.load(std::memory_order_relaxed)) {
             
         SDL_Event e;
@@ -260,21 +389,21 @@ void GameController::handleEvents() {
         if(SDL_PollEvent(&e) != 0) {
             switch (e.type) {
                 case SDL_KEYDOWN:
-                    //if (e.key.keysym.sym == SDLK_q) {
-                    //    Session::quit_flag.store(true, std::memory_order_release);
-                    //}
-                    //break;
+                    if (e.key.keysym.sym == SDLK_q) {
+                        Session::quit_flag.store(true, std::memory_order_release);
+                    }
+                    break;
                 case SDL_QUIT:
-                    //Session::quit_flag.store(true, std::memory_order_release);    // SDL2 does not tell us when to quit
+                    Session::quit_flag.store(true, std::memory_order_release);
                     break;
                 case SDL_CONTROLLERDEVICEADDED:
                     if (!controller) {
                         controller = SDL_GameControllerOpen(e.cdevice.which);
                         if (controller) {
+                            //std::cout << "Controller connected" << std::endl;
                             std::cout << "Found game controller: " << SDL_GameControllerName(controller) << std::endl;
                             Session::ctlr_paired.store(true, std::memory_order_release);
                             Logging::insertEventLog(EventType::CONTROLLER_CONNECTED);
-                            //std::cout << "Controller connected" << std::endl;
                         }
                     }
                     break;
@@ -303,15 +432,42 @@ void GameController::handleEvents() {
                         processEvent(pressedButtons);
                     }
                     break;
+
+                //case SDL_CONTROLLERBUTTONDOWN:
+                //{
+                //    uint32_t pressedButtons = 0;
+                //    SDL_Event event;
+                //    bool buttonReleased = false;
+                //    //pressedButtons |= (1 << e.cbutton.button);
+                //    while (!buttonReleased) {
+                //        while (SDL_PollEvent(&event)) {
+                //            switch (event.type) {
+                //                case SDL_CONTROLLERBUTTONDOWN:
+                //                    pressedButtons |= (1 << event.cbutton.button);
+                //                    break;
+                //                case SDL_CONTROLLERBUTTONUP:
+                //                    buttonReleased = true;
+                //                    break;
+                //            }
+                //        }
+                //        SDL_Delay(10); // Small delay to avoid busy-waiting
+                //    }
+                //    processEvent(pressedButtons);
+                //}
+                //    break;
+
+
+                //case SDL_CONTROLLERBUTTONUP:
+                //    break;
                 default:
                     break;
+
+                
+
             }
         }
         SDL_Delay(2);  // Avoid busy-waiting
-        continue;
     }
-    events_active.store(false, std::memory_order_release);
-    events_finished.store(true, std::memory_order_release);
     return;
 }
 

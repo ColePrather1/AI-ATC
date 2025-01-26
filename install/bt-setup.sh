@@ -7,10 +7,10 @@
 
 
 # Ensure script is run with sudo
-#if [ "$EUID" -ne 0 ]; then
-#  echo "Please run as root (use sudo)"
-#  exit 1
-#fi
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root (use sudo)"
+  exit 1
+fi
 
 sudo usermod -a -G bluetooth $USER
 
@@ -40,13 +40,9 @@ cp 90-bt-autoconnect.rules /etc/udev/rules.d/90-bt-autoconnect.rules
 sudo cp my_RF24.h /usr/local/include/RF24/RF24.h
 sudo cp my_spi.h /usr/local/include/RF24/utility/SPIDEV/spi.h
 
-
 # Enable Bluetooth service
 systemctl enable bluetooth.service
 systemctl enable bt-autoconnect.service
 #systemctl start bt-autoconnect.service
-#systemctl enable boot.service
-#systemctl start boot.service
-
 
 echo "Bluetooth setup complete. Please reboot your Raspberry Pi for changes to take effect."

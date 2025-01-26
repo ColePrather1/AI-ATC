@@ -3,9 +3,7 @@
 #pragma once
 #pragma pack(push, 1)
 #include <cstdint>
-
-//#include "common.h"
-//#include "Session.h"
+#include <vector>
 
 
 // PACKET CHAR NAMES
@@ -18,90 +16,64 @@
 
 
 enum class PacketType : uint8_t {
-    BASE,
-    // System Data
-    //SYSTEM,
-    //STATUS,
-    PID,
-    // Pairing
-    //PAIRING,
+    BASE = 0,
+    PID = 1,
+
     // Control Modes
-    AUTO,
-    ASSIST,
-    MANUAL,
+    AUTO = 2,
+    ASSIST = 3,
+    MANUAL = 4,
+
     // IMU Data     // (d, x,y,z) in each packet
-    ACCEL,
-    GYRO,
-    MAGNET,
+    ACCEL = 5,
+    GYRO = 6,
+    MAGNET = 7,
+
     // GPS Data
-    GPS,
-    GPS_ENV,
+    GPS = 8,
+    GPS_ENV = 9,
+
     // Sensor Data
-    BAROMETER,       // LPS22HB
-    TEMP_HUMID,      // HS3003
+    BAROMETER = 10,       // LPS22HB
+    TEMP_HUMID = 11,      // HS3003
+
     //MIC_PACKET,           // MP34DT06JTR
     //GESTURE_PACKET,       // APDS9960
     //LIDAR_PACKET,         // TF-Luna
     // Acknowledgement
     //ACK,
-    EVENT,
+    EVENT = 12,
     //EVENT_DATA,
-    EVENT_DATA8,
-    EVENT_DATA16,
-    EVENT_DATA32,
-    EVENT_DATA64,
-    EVENT_TIMED,
-    EVENT_TIMED_DATA
+    EVENT_DATA8 = 13,
+    EVENT_DATA16 = 14,
+    EVENT_DATA32 = 15,
+    EVENT_DATA64 = 16,
+    EVENT_TIMED = 17,
+    EVENT_TIMED_DATA = 18
 };
 
 
-
-// 2 bytes  // 8 bytes with process()
 class Packet {
 public:
     PacketType type;
     char header;
-
-
+    uint8_t payload_size;     // Total bytes in payload
+    std::vector<uint8_t> payload;
 
     Packet() : type(PacketType::BASE), header(0) {}
-    Packet(PacketType t, char hdr) : type(t), header(hdr) {}
+    Packet(PacketType t, char hdr) : type(t), header(hdr) {
+        payload.reserve(32);
+        payload.push_back(static_cast<uint8_t>(type));
+        payload.push_back(hdr);
+        payload.push_back(3);
+    }
     virtual ~Packet() = default;
-
-
-
     virtual void process() = 0;
-
 
     //virtual void serialize(char* buffer) const = 0;     // Encode
     //virtual void deserialize(const char* buffer) = 0;   // Decode
+
 };
- // } __attribute__((packed));
-
-
-
-
-
-
-/*
-    \/  \/  Old Code Storage Below  \/  \/
-*/
-
-/*
-enum PacketType {
-    MANUAL_PACKET = 0,
-    AUTO_PACKET = 1,
-    GPS_PACKET = 2,
-    ACCEL_PACKET = 3,
-    GYRO_PACKET = 4,
-    MAGNET_PACKET = 5,
-    BARO_PACKET = 6,
-    SYSTEM_PACKET = 7,
-    EMERGENCY_PACKET = 8,
-    STATUS_PACKET = 9,
-    GPS_ENV_PACKET = 10,
-};
-*/
 
 #pragma pack(pop)
 #endif // PACKET_H

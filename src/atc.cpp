@@ -1,26 +1,15 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-
 #include "atc.h"
-
-
 #include "Common.h"
 #include "Session.h"
 #include "Logging.h"
-
-
-//#include "threads/atc_threads.h"
 #include "GameController.h"
-//#include "SQL.h"
 
 
 
-//bool ATC::within_range(){}
-
-/*
-TODO: Implement Plane & GameController Pairing
-*/
+// TODO: Implement Plane & GameController Pairing
 bool ATC::pair_pilot(){
     //Session::control_mode = ControlMode::ASSIST;
     return 1;
@@ -185,7 +174,7 @@ bool ATC::atc_shutdown(){
 
     if (Session::ctlr_active.load(std::memory_order_relaxed)) {
         std::cout << "globalGameController stopping..." << std::endl;
-        Session::ctlr_shtdwn.store(true, std::memory_order_release);
+        //Session::ctlr_shtdwn.store(true, std::memory_order_release);
         //Session::ctlr_loop_active.store(false, std::memory_order_release);  // happens in gGC.stop()
         if (!globalGameController.stop()) {
              std::cout << "Game Controller shutdown failed" << std::endl;
@@ -194,7 +183,7 @@ bool ATC::atc_shutdown(){
         }
         std::cout << "globalGameController stopped" << std::endl << std::endl;
         Session::ctlr_active.store(false, std::memory_order_release);
-        Session::ctlr_shtdwn.store(false, std::memory_order_release);
+        //Session::ctlr_shtdwn.store(false, std::memory_order_release);
         Session::ctlr_finished.store(true, std::memory_order_release);
     }
     else{

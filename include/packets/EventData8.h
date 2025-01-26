@@ -6,8 +6,6 @@
 #include "Packet.h"
 
 
-
-// 10 bytes
 class EventData8Packet : public Packet {                 // System packet
 public:
     EventType event_type;

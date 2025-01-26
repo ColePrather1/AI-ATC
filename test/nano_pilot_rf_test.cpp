@@ -25,7 +25,9 @@ void setup() {
   radio.setChannel(69);
   radio.openReadingPipe(0, pipes[0]);
   radio.openReadingPipe(1, pipes[1]);
-  
+  //radio.openReadingPipe(2, pipes[2]);
+  //radio.openReadingPipe(3, pipes[3]);
+
   radio.startListening();
   
   Serial.println("NRF24L01 receiver initialized successfully");

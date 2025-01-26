@@ -6,7 +6,7 @@
 namespace TaxiControlMode {
 
     extern void processFeatures();
-    extern void processEvent();
+    extern void processEvent(uint32_t mask);
 }
 
 #endif // TAXICONTROLMODE_H

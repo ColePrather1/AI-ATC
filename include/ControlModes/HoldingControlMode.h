@@ -4,9 +4,8 @@
 #include <cstdint>
 
 namespace HoldingControlMode {
-    extern void holdingMode(uint32_t mask);
-    //extern void holding_send_features();
-    extern void holding_send_btns(uint32_t mask);
+    extern void processFeatures();
+    extern void processEvent(uint32_t mask);
 }
 
 

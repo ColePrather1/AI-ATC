@@ -78,3 +78,7 @@ connect 7C:66:EF:28:79:D0
 
 
 
+#### Controller Auto-connect with bluetoothctl
+       chmod +x bt-setup.sh
+       sudo ./bt-setup.sh
+       sudo reboot

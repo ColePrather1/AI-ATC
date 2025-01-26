@@ -2,12 +2,15 @@
 #define CONTROLMODES_H
 
 #include "AssistControlMode.h"
+#include "ManualControlMode.h"
+#include "TaxiControlMode.h"
+
+#include "HoldingControlMode.h"
 #include "AutoControlMode.h"
 #include "EmergencyControlMode.h"
-#include "HoldingControlMode.h"
-#include "ManualControlMode.h"
-#include "PairingControlMode.h"
 #include "RecoveryControlMode.h"
-#include "TaxiControlMode.h"
+
+#include "PairingControlMode.h"
+
 
 #endif // CONTROLMODES_H

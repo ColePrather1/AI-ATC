@@ -1,3 +1,15 @@
+
+# Folders
+
+/Aircraft/**
+/data/**
+/new_data/**
+/FULL_RF24/**
+/test/**
+
+/install/dev/**
+/install/trash/**
+
 # Prerequisites
 *.d
 

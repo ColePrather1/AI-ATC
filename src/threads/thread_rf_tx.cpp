@@ -9,6 +9,7 @@
 #include "packets/packets.h"
 #include "EventTypes.h"
 #include <iostream>
+#include <vector>
 //#include "atc_rf.h"
 
 //#include "rf_tx.h"
@@ -27,17 +28,18 @@ static bool rf_tx_setup(){
         return false;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    radio_tx.stopListening();
-    radio_tx.openWritingPipe(pipes[0]);     // Initial pipe for comm with Pilot
-    radio_tx.setChannel(69);
-    //radio_tx.openWritingPipe(pipes[1]);
-    //radio_tx.openWritingPipe(pipes[2]);
-    //radio_tx.openWritingPipe(pipes[3]);
-    
+
     radio_tx.setPALevel(RF24_PA_LOW);
     //radio_tx.setAutoAck(false);
     radio_tx.setDataRate(RF24_250KBPS);
 
+    radio_tx.stopListening();
+    radio_tx.openWritingPipe(pipes[0]);     // Initial pipe for comm with Pilot
+    //radio_tx.setChannel(69);
+    //radio_tx.openWritingPipe(pipes[1]);
+    //radio_tx.openWritingPipe(pipes[2]);
+    //radio_tx.openWritingPipe(pipes[3]);
+    
 
 
     return true;
@@ -79,11 +81,12 @@ static void rf_tx_loop(){
             } // Error with packet
             */
         }
-        else {
+        else {  // No packets to send
+
             //usleep(100);
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
         continue;
     }
     Session::rf_tx_loop_active.store(false, std::memory_order_release);
@@ -102,8 +105,40 @@ bool send_packet(Packet* packet, int send_pipe) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    if (!radio_tx.write(packet, sizeof(packet))) {
+    //std::vector<uint8_t> payload;
+    //payload.resize(packet->payload_size);
+    //std::copy(packet->payload, packet->payload + packet->payload_size, payload.begin());
+    //packet->payload = payload.data();
+
+    //if (!radio_tx.write(*packet, sizeof(packet))) {
+    //bool result = radio_tx.write(packet->payload.data(), packet->payload_size);
+
+
+    //std::cout << "Packet type (data[0]): " << (int)packet->type << std::endl;
+    //std::cout << "Packet type (data[0]): " << (int)(packet->payload.data()[0]) << std::endl;
+
+    bool result = radio_tx.write(packet->payload.data(), sizeof(packet->payload.data()));
+
+    //bool result = radio_tx.write("Hello gangstas", sizeof("Hello gangstas"));
+
+
+    //if (!radio_tx.write("Whats up", 9)) {
+    if (!result) {
+    //if (!radio_tx.write(packet->payload.data(), packet->payload_size)) {
         std::cout << "Failed to send packet" << std::endl;
+
+        //std::cout << "Packet type: " << (int)packet->type << std::endl;
+        //if (packet->type == PacketType::MANUAL) {
+        //    std::cout << "Payload size: " << packet->payload_size << std::endl;
+        //    std::cout << "Payload: ";
+        //    for (int i = 0; i < packet->payload_size; i++) {
+        //        std::cout << (int)packet->payload[i] << " ";
+        //    }
+        //    std::cout << std::endl;
+        //}
+
+
+
         return false;
     }
     std::cout << "Packet sent" << std::endl;

@@ -3,79 +3,70 @@
 #include "GameController.h"
 #include "Common.h"
 #include "Session.h"
+#include "SessionControl.h"
+
 
 #include "RadioTx.h"
 #include "packets/Manual.h"
 //#include "packets/packets.h"
 
-#include "CommonTools.h"
+//#include "CommonTools.h"
 #include <iostream>
 
 #include <cstdint>
+
+inline int common_map(int value, int fromLow, int fromHigh, int toLow, int toHigh) {
+    return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+}
+
+
 
 /*
     Sends values of changing axises for manual control
 */
 void ManualControlMode::processFeatures() {
-    //while (Session::control_mode == ControlMode::MANUAL) {}
 
-        uint8_t throttle_val_read, elevator_val_read, rudder_val_read, aileron_val_left_read, aileron_val_right_read;
-        //uint8_t temp_reads[NUM_FEATS] = {&throttle_val_read, &elevator_val_read, &rudder_val_read, &aileron_val_left_read, &aileron_val_right_read };
-        //uint8_t temp_reads[NUM_FEATS] = {*throttle_val_read, *elevator_val_read, *rudder_val_read, *aileron_val_left_read, *aileron_val_right_read };
+        //int16_t throttle_val_read, elevator_val_read, rudder_val_read, aileron_val_left_read, aileron_val_right_read;
+        int throttle_val_read, elevator_val_read, rudder_val_read, aileron_val_left_read, aileron_val_right_read;
 
-        //throttle_val_read = static_cast<uint8_t>(map(SDL_GameControllerGetAxis(GameController::controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT), -511, 512, 0, 180));           // Throttle
-        //elevator_val_read = static_cast<uint8_t>(map(SDL_GameControllerGetAxis(GameController::controller, SDL_CONTROLLER_AXIS_LEFTY), -511, 512, 0, 180));           // Elevator
-        //rudder_val_read = static_cast<uint8_t>(map(SDL_GameControllerGetAxis(GameController::controller, SDL_CONTROLLER_AXIS_LEFTX), -511, 512, 0, 180));           // Rudder
-        //uint8_t right_x = static_cast<uint8_t>(GameController::controller, SDL_CONTROLLER_AXIS_RIGHTX);   // Roll 
-        //uint8_t right_y = static_cast<uint8_t>(GameController::controller, SDL_CONTROLLER_AXIS_RIGHTY);   // Flap / Slat
-        //uint8_t aileron_left = static_cast<uint8_t>(map(right_x, -512, 512, 0, 180));
-        //uint8_t aileron_right = static_cast<uint8_t>(map(right_x, -512, 512, 180, 0));
-        //uint8_t flap_deployment = static_cast<uint8_t>(map(right_y, -512, 512, 0, 180));
-        //aileron_val_left_read = static_cast<uint8_t>(constrain(aileron_left + flap_deployment, 0, 180));       // Left Flaperon
-        //aileron_val_right_read = static_cast<uint8_t>(constrain(aileron_right + flap_deployment, 0, 180));       // Right Flaperon       
+        throttle_val_read = SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);           // Throttle
+        elevator_val_read = SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_LEFTY);           // Elevator
+        rudder_val_read = SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_LEFTX); 
+        int right_x = SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_RIGHTX);   // Roll 
+        int right_y = SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_RIGHTY);   // Flap / Slat
 
-        throttle_val_read = (common_map(SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT), -511, 512, 0, 180));           // Throttle
-        elevator_val_read = (common_map(SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_LEFTY), -511, 512, 0, 180));           // Elevator
-        rudder_val_read = (common_map(SDL_GameControllerGetAxis(globalGameController.controller, SDL_CONTROLLER_AXIS_LEFTX), -511, 512, 0, 180)); 
+        //int aileron_left = (common_map(right_x, -32768, 32767, 0, 180));
+        //int aileron_right = (common_map(right_x, -32768, 32767, 180, 0));
+        //int flap_deployment = (common_map(right_y, -32768, 32767, 0, 180));
+        //aileron_val_left_read = static_cast<uint8_t>(common_constrain(aileron_left + flap_deployment, 0, 180));       // Left Flaperon
+        //aileron_val_right_read = static_cast<uint8_t>(common_constrain(aileron_right + flap_deployment, 0, 180));       // Right Flaperon
 
+        throttle_val_read = (common_map(throttle_val_read, 0, 32767, 0, 180));           // Throttle
+        elevator_val_read = (common_map(elevator_val_read, -32768, 32767, 0, 180));           // Elevator
+        rudder_val_read = (common_map(rudder_val_read, -32768, 32767, 0, 180));
 
-        //aileron_val_left_read = map(SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX), -511, 512, 0, 180);           // Left Aileron
-        //aileron_val_right_read = map(SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX), -511, 512, 0, 180);           // Right Aileron
+        uint8_t aileron_left = (common_map(right_x, -32768, 32767, 0, 180));
+        uint8_t aileron_right = (common_map(right_x, -32768, 32767, 180, 0));
+        uint8_t flap_deployment = (common_map(right_y, -32768, 32767, 0, 180)); // +90 since unsigned
+        //uint8_t flap_deployment = (common_map(right_y, -32768, 32767, -90, 90)); // +90 since unsigned
+        
 
-        uint8_t right_x = (globalGameController.controller, SDL_CONTROLLER_AXIS_RIGHTX);   // Roll 
-        uint8_t right_y = (globalGameController.controller, SDL_CONTROLLER_AXIS_RIGHTY);   // Flap / Slat
-        uint8_t aileron_left = (common_map(right_x, -512, 512, 0, 180));
-        uint8_t aileron_right = (common_map(right_x, -512, 512, 180, 0));
-        uint8_t flap_deployment = (common_map(right_y, -512, 512, 0, 180));
-        aileron_val_left_read = static_cast<uint8_t>(common_constrain(aileron_left + flap_deployment, 0, 180));       // Left Flaperon
-        aileron_val_right_read = static_cast<uint8_t>(common_constrain(aileron_right + flap_deployment, 0, 180));       // Right Flaperon
+        aileron_val_left_read = aileron_left + flap_deployment - 90;       // Left Flaperon      // static_cast<uint8_t>
+        aileron_val_right_read = aileron_right + flap_deployment - 90;       // Right Flaperon
 
         //ManualPacket manual_pkt('m', temp_reads, 0);
         //ManualPacket manual_pkt('m', throttle_val_read, elevator_val_read, rudder_val_read, aileron_val_left_read, aileron_val_right_read);
         //ManualPacket* manual_pkt = new ManualPacket('m', temp_reads, 0);
 
-        std::cout << "Throttle: " << throttle_val_read << std::endl;
-        std::cout << "Elevator: " << elevator_val_read << std::endl;
-        std::cout << "Rudder: " << rudder_val_read << std::endl;
-        std::cout << "Left Aileron: " << aileron_val_left_read << std::endl;
-        std::cout << "Right Aileron: " << aileron_val_right_read << std::endl;
+        //std::cout << "\n\nThrottle: " << throttle_val_read << std::endl;
+        //std::cout << "Elevator: " << elevator_val_read << std::endl;
+        //std::cout << "Rudder: " << rudder_val_read << std::endl;
+        //std::cout << "Left Aileron: " << aileron_val_left_read << std::endl;
+        //std::cout << "Right Aileron: " << aileron_val_right_read << std::endl;
+        //std::cout << "Flap Deployment (-90): " << flap_deployment - 90 << std::endl << std::endl;
 
         ManualPacket* manual_pkt = new ManualPacket('m', throttle_val_read, elevator_val_read, rudder_val_read, aileron_val_left_read, aileron_val_right_read);
         sendToPlane(manual_pkt);
-
-
-
-        //Session::tx_queue.enqueue(manual_pkt);
-        //Session::rx_queue.enqueue(manual_pkt);
-
-        //sendToPlane(&manual_pkt);
-
-        /*
-        if (!send_packet(&manual_pkt, servo_pipe)) {     
-            std::cout << "Failed to send MP packet" << std::endl;
-            //return 1;
-        }   
-        */
 
 
     //usleep(100);
@@ -89,13 +80,14 @@ void ManualControlMode::processFeatures() {
 TODO:    (Manual) Processes bitmask of pressed buttons
 */
 // uint32_t& mask
-void ManualControlMode::processEvent(uint32_t& mask) {
+void ManualControlMode::processEvent(uint32_t mask) {
     switch (mask) {
         // (A)
         // Assist/Manual toggle
         case BTN_CROSS:
             std::cout << "Cross button pressed" << std::endl;
-            std::cout << "A button pressed" << std::endl;
+            //std::cout << "A button pressed" << std::endl;
+            setControlMode(ControlMode::ASSIST);
             // Add more checks as needed in future
             // TODO: Taken out only for Dev & Testing purposes
             //if (Session::control_mode.load(std::memory_order_relaxed) == ControlMode::MANUAL) {
@@ -113,6 +105,7 @@ void ManualControlMode::processEvent(uint32_t& mask) {
         // Holding Pattern toggle
         case BTN_CIRCLE:
             std::cout << "Circle button pressed" << std::endl;
+            setControlMode(ControlMode::HOLDING);
             break;
         
         // (X)

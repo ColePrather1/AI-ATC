@@ -4,4 +4,5 @@
 
 void TaxiControlMode::processFeatures(){}
 
-void TaxiControlMode::processEvent(){}
+void TaxiControlMode::processEvent(uint32_t mask){}
+
