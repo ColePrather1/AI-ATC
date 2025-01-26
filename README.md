@@ -25,7 +25,7 @@ Git
  
 - [RF24](https://github.com/nRF24/RF24)
 
-- [C++17 compatible compiler](...)
+- [C++17 compatible compiler]
 
 - [CMake](https://cmake.org/)
 
@@ -38,55 +38,40 @@ For development:
   
 - [GDB](https://www.gnu.org/software/gdb/) (for debugging)
   
-- [mypy](https://mypy-lang.org/) (for type check)
-  
-- [sphinx](https://www.sphinx-doc.org/) (for document generation)
-  
-- [pycodestyle](https://pypi.org/project/pycodestyle/) (for code style check)
+
 
 
 # How to use
 
-       1. Clone this repository 
-
-              ```terminal
-              git clone https://github.com/ColePrather1/AI-ATC.git
-              ```
-
-       2. Run inital setup script
-
-              ```terminal
-              cd AI-ATC
-              chmod +x install/initial.sh
-              sudo ./install/initial.sh
-              ```            
-
-       3. Reboot to apply changes
-
-              ```terminal
-              sudo reboot
-              ```
-
-       4. Compilation
-
-              ```terminal
-              cd AI-ATC
-              mkdir build && cd build
-              cmake ..
-              make
-              ```
-
-              To recompile, first clean the build directory:
-
-              ```terminal
-              rm -rf *
-              ```
-
-       5. Execution
-
-              ```terminal
-              ./bin/AI-ATC
-              ```
+1. Clone this repository 
+       ```terminal
+       git clone https://github.com/ColePrather1/AI-ATC.git
+       ```
+2. Run inital setup script
+       ```terminal
+       cd AI-ATC
+       chmod +x install/initial.sh
+       sudo ./install/initial.sh
+       ```            
+3. Reboot to apply changes
+       ```terminal
+       sudo reboot
+       ```
+4. Compilation
+       ```terminal
+       cd AI-ATC
+       mkdir build && cd build
+       cmake ..
+       make
+       ```
+- To recompile, first clean the build directory:
+       ```terminal
+       rm -rf *
+       ```
+5. Execution
+       ```terminal
+       ./bin/AI-ATC
+       ```
 
 # Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
