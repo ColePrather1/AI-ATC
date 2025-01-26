@@ -3,7 +3,7 @@ AI-ATC is an innovative project that integrates artificial intelligence with RC 
 
 # Requirements
 
-For compilation & execution
+### Compilation & Execution
 
 - [Raspberry Pi 3/4](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/)
 
@@ -22,21 +22,21 @@ For compilation & execution
 - [Git](https://git-scm.com/)
  
 
-For development:
+## Development:
   
 - [GCC or Clang](https://gcc.gnu.org/) (for compilation)
   
 - [GDB](https://www.gnu.org/software/gdb/) (for debugging)
   
 
-# How to use
+## Initialization
 
 1. Clone this repository 
        
        git clone https://github.com/ColePrather1/AI-ATC.git
        cd AI-ATC
        
-2. Run inital setup script
+2. Run initial setup script
        
        chmod +x install/initial.sh
        sudo ./install/initial.sh
@@ -45,7 +45,7 @@ For development:
 
        sudo reboot
 
-4. Compilation
+## Compilation
 
        cd AI-ATC
        mkdir build && cd build
@@ -56,10 +56,17 @@ For development:
 
        rm -rf *
 
-5. Execution
+## Execution
 
        ./bin/AI-ATC
 
 
-# Contributing
+## Troubleshooting
+
+If you encounter any issues, please check the following:
+- Ensure all dependencies are correctly installed
+- Verify that your Raspberry Pi is running the latest OS version
+- Check the console output for any error messages
+
+## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
