@@ -9,31 +9,6 @@
 #include "main.h"
 
 
-
-int quit(){
-    quit_called.store(true, std::memory_order_acquire);
-    Session::quit_flag.store(true, std::memory_order_relaxed);
-
-    bool success = ATC::atc_shutdown();
-    if (!success){
-        std::cout << "quit(): Shutdown failed" << std::endl;
-        return 1;
-    }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    if (!Session::atc_finished.load(std::memory_order_relaxed)){
-        std::cout << "quit(): Shutdown failed, ATC not finished." << std::endl;
-        return 1;
-    }
-    std::cout << "quit(): Shutdown successful" << std::endl;
-    Session::program_finished.store(true, std::memory_order_release);
-    return 0;
-}
-
-
-
-
-
 // Currently only handles startup and shutdown
 int main() {
 

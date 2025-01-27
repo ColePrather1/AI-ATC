@@ -20,7 +20,7 @@ set(SOURCES
     src/GameController.cpp
     src/Logging.cpp
     src/myTime.cpp
-    src/Session.cpp
+    #src/Session.cpp
     #src/CommonTools.cpp
     src/atc.cpp
     #src/RadioTx.cpp

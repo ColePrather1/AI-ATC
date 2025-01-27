@@ -59,23 +59,25 @@ static void rf_rx_loop(){
         if (radio_rx.available()) {
 
         // Get the size of the packet
-            uint8_t incoming_packet_size = radio_rx.getDynamicPayloadSize();
+            //uint8_t incoming_packet_size = radio_rx.getDynamicPayloadSize();
 
         // Check packet size
-            if (incoming_packet_size > MAX_PACKET_SIZE) {
-                std::cout << "Received packet size exceeds maximum" << std::endl;
-                radio_rx.flush_rx(); // Clear the RX FIFO
-                continue;
-            }
+            //if (incoming_packet_size > MAX_PACKET_SIZE) {
+            //    std::cout << "Received packet size exceeds maximum" << std::endl;
+            //    radio_rx.flush_rx(); // Clear the RX FIFO
+            //    continue;
+            //}
+
         // Send to processing
-            //std::array<std::byte, incoming_packet_size> buffer;
-            //BufferItem<incoming_packet_size> buffer;
-            //buffer.size = incoming_packet_size;
-            //std::span<std::byte> buffer = std::span<std::byte>(std::make_unique<std::byte[]>(incoming_packet_size), incoming_packet_size);
-            //std::span<std::byte> buffer;
-            std::vector<std::byte> buffer(incoming_packet_size);
-            radio_rx.read(buffer.data(), incoming_packet_size);
+            // TODO: Copy approach from Arduino tests
+            // TODO: Use MemoryPool to avoid allocations
+            //std::vector<uint8_t> buffer(incoming_packet_size);
+            std::vector<uint8_t>* buffer = new std::vector<uint8_t>(32);
+            buffer->reserve(32);
+            radio_rx.read(buffer->data(), sizeof(buffer->data()));
+            buffer->shrink_to_fit();
             rx_buffer_queue.enqueue(buffer);    
+            //rx_buffer_queue.enqueue(reinterpret_cast<Packet*>(buffer->data()));
 
         }   
         std::this_thread::sleep_for(std::chrono::milliseconds(1));

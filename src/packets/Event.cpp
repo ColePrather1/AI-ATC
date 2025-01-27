@@ -202,29 +202,29 @@ void EventPacket::process(){
             break;
         //case EventType::FIXED_ALTITUDE_DATA_CHANGE:
         case EventType::FIXED_ALTITUDE_FALSE:
-            Session::fixed_altitude.store(false, std::memory_order_release);
+            Session::fixed_plane_altitude.store(false, std::memory_order_release);
             Logging::insertEventLog(EventType::FIXED_ALTITUDE_FALSE);
             break;
         case EventType::FIXED_ALTITUDE_TRUE:
-            Session::fixed_altitude.store(true, std::memory_order_release);
+            Session::fixed_plane_altitude.store(true, std::memory_order_release);
             Logging::insertEventLog(EventType::FIXED_ALTITUDE_TRUE);
             break;
         //case EventType::FIXED_HEADING_DATA_CHANGE:
         case EventType::FIXED_HEADING_FALSE:
-            Session::fixed_heading.store(false, std::memory_order_release);
+            Session::fixed_plane_heading.store(false, std::memory_order_release);
             Logging::insertEventLog(EventType::FIXED_HEADING_FALSE);
             break;
         case EventType::FIXED_HEADING_TRUE:
-            Session::fixed_heading.store(true, std::memory_order_release);
+            Session::fixed_plane_heading.store(true, std::memory_order_release);
             Logging::insertEventLog(EventType::FIXED_HEADING_TRUE);
             break;
         //case EventType::FIXED_SPEED_DATA_CHANGE:
         case EventType::FIXED_SPEED_FALSE:
-            Session::fixed_speed.store(false, std::memory_order_release);
+            Session::fixed_plane_speed.store(false, std::memory_order_release);
             Logging::insertEventLog(EventType::FIXED_SPEED_FALSE);
             break;
         case EventType::FIXED_SPEED_TRUE:
-            Session::fixed_speed.store(true, std::memory_order_release);
+            Session::fixed_plane_speed.store(true, std::memory_order_release);
             Logging::insertEventLog(EventType::FIXED_SPEED_TRUE);
             break;
 

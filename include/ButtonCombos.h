@@ -25,7 +25,12 @@
 
 
 class ButtonCombos {
-public:
+    //static std::array<std::array<uint32_t, 2>, 4> button_combos = { { { BTN_CROSS, BTN_CIRCLE }, { BTN_CROSS, BTN_SQUARE }, { BTN_CROSS, BTN_TRIANGLE }, { BTN_L1, BTN_R1 } } };
+
+    // System
+    virtual void loadEnvironment() = 0;
+    //virtual void () = 0;
+
     // Button Combos
     virtual void cross() = 0;
     virtual void circle() = 0;
@@ -43,7 +48,8 @@ public:
     virtual void cross_circle() = 0;
     virtual void l1_r1() = 0;
     virtual void l3_r3() = 0;
-};
+}
+
 
 
 

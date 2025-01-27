@@ -13,10 +13,10 @@ inline void setControlMode(ControlMode mode){
     switch(mode){
         case ControlMode::MANUAL:
         {
-            Session::control_mode.store(ControlMode::MANUAL, std::memory_order_acq_rel);
-            Session::fixed_plane_heading.store(false, std::memory_order_acq_rel);
-            Session::fixed_plane_altitude.store(false, std::memory_order_acq_rel);
-            Session::fixed_plane_speed.store(false, std::memory_order_acq_rel);
+            Session::control_mode.store(ControlMode::MANUAL, std::memory_order_release);
+            Session::fixed_plane_heading.store(false, std::memory_order_release);
+            Session::fixed_plane_altitude.store(false, std::memory_order_release);
+            Session::fixed_plane_speed.store(false, std::memory_order_release);
             Logging::insertEventLog(EventType::CONTROL_MODE_CHANGE_MANUAL);
 
             Packet* event0_pkt = new EventPacket('e', EventType::CONTROL_MODE_CHANGE_MANUAL);
@@ -27,10 +27,10 @@ inline void setControlMode(ControlMode mode){
 
         case ControlMode::ASSIST:
         {
-            Session::control_mode.store(ControlMode::ASSIST, std::memory_order_acq_rel);
-            Session::fixed_plane_heading.store(false, std::memory_order_acq_rel);
-            Session::fixed_plane_altitude.store(false, std::memory_order_acq_rel);
-            Session::fixed_plane_speed.store(false, std::memory_order_acq_rel);
+            Session::control_mode.store(ControlMode::ASSIST, std::memory_order_release);
+            Session::fixed_plane_heading.store(false, std::memory_order_release);
+            Session::fixed_plane_altitude.store(false, std::memory_order_release);
+            Session::fixed_plane_speed.store(false, std::memory_order_release);
             Logging::insertEventLog(EventType::CONTROL_MODE_CHANGE_ASSIST);
 
             Packet* event0_pkt = new EventPacket('e', EventType::CONTROL_MODE_CHANGE_ASSIST);
@@ -45,10 +45,10 @@ inline void setControlMode(ControlMode mode){
                 std::cout << "Cannot set TAXI mode while not flying" << std::endl;
                 return;
             }
-            Session::control_mode.store(ControlMode::TAXI, std::memory_order_acq_rel);
-            Session::fixed_plane_heading.store(false, std::memory_order_acq_rel);
-            Session::fixed_plane_altitude.store(false, std::memory_order_acq_rel);
-            Session::fixed_plane_speed.store(false, std::memory_order_acq_rel);
+            Session::control_mode.store(ControlMode::TAXI, std::memory_order_release);
+            Session::fixed_plane_heading.store(false, std::memory_order_release);
+            Session::fixed_plane_altitude.store(false, std::memory_order_release);
+            Session::fixed_plane_speed.store(false, std::memory_order_release);
             Logging::insertEventLog(EventType::CONTROL_MODE_CHANGE_TAXI);
 
             Packet* event0_pkt = new EventPacket('e', EventType::CONTROL_MODE_CHANGE_TAXI);
@@ -62,16 +62,16 @@ inline void setControlMode(ControlMode mode){
             //Session::control_mode.store(ControlMode::HOLDING, std::memory_order_release);
 
             if (Session::isFlying.load(std::memory_order_relaxed)) {
-                Session::control_mode.store(ControlMode::HOLDING, std::memory_order_acq_rel);
+                Session::control_mode.store(ControlMode::HOLDING, std::memory_order_release);
             }
-            Session::fixed_plane_heading.store(false, std::memory_order_acq_rel);
-            Session::fixed_plane_altitude.store(true, std::memory_order_acq_rel);
-            Session::fixed_plane_speed.store(true, std::memory_order_acq_rel);
-            //Session::control_mode.store(ControlMode::HOLDING, std::memory_order_acq_rel);   // TODO: delete during production
+            Session::fixed_plane_heading.store(false, std::memory_order_release);
+            Session::fixed_plane_altitude.store(true, std::memory_order_release);
+            Session::fixed_plane_speed.store(true, std::memory_order_release);
+            //Session::control_mode.store(ControlMode::HOLDING, std::memory_order_release);   // TODO: delete during production
             Logging::insertEventLog(EventType::CONTROL_MODE_CHANGE_HOLDING);
             
             // TODO: Implement waypoint to circle, ie 50 meters to left so plane just turns left and keeps going
-            //Session::isCircleWaypoint.store(true, std::memory_order_acq_rel);
+            //Session::isCircleWaypoint.store(true, std::memory_order_release);
             Packet* event0_pkt = new EventPacket('e', EventType::CONTROL_MODE_CHANGE_HOLDING);
             sendToPlane(event0_pkt);
             Packet* event1_pkt = new EventData8Packet('e', EventType::FIXED_ALTITUDE_DATA_CHANGE, 40);  // 40 meters

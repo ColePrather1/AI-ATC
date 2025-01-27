@@ -15,7 +15,7 @@ ManualPacket::ManualPacket(char hdr, uint8_t throttle, uint8_t elevator, uint8_t
         payload.push_back(right_aileron);
 
         payload.shrink_to_fit();
-        payload[2] = static_cast<uint8_t>(payload.size())
+        payload[2] = static_cast<uint8_t>(payload.size());
     }
 
 void ManualPacket::process() {
