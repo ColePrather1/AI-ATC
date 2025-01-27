@@ -1,5 +1,6 @@
 # AI-ATC
 
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 
 AI-ATC is an innovative project that integrates artificial intelligence with RC air traffic control, designed to run on a Raspberry Pi 4 Model B 8GB. [WORK IN PROGRESS]
 
