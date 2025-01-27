@@ -97,25 +97,6 @@ bool ATC::atc_shutdown(){
         return 0;
     }
     Session::atc_shtdwn.store(true, std::memory_order_release);
-    //SDL_GameControllerClose(controller);
-    //SDL_Quit();
-
-
-    //if (!GameController::controller_shutdown()) {
-    //    std::cout << "Game Controller shutdown failed" << std::endl;
-    //}
-    
-    /*
-    // If all threads are joinable, join them
-    if (rf_rx_thread.joinable() && rf_tx_thread.joinable() && game_controller_thread.joinable() && packet_process_thread.joinable()) {      //  && sql_thread.joinable()
-        rf_rx_thread.stop();
-        rf_tx_thread.stop();
-        packet_process_thread.stop();
-        game_controller_thread.stop();
-        //sql_thread.stop();
-    }
-
-    */
 
     if (Session::rf_rx_active.load(std::memory_order_relaxed)) {
         std::cout << "rf_rx_thread stopping..." << std::endl;
@@ -177,8 +158,6 @@ bool ATC::atc_shutdown(){
         //Session::ctlr_loop_active.store(false, std::memory_order_release);  // happens in gGC.stop()
         if (!globalGameController.stop()) {
              std::cout << "Game Controller shutdown failed" << std::endl;
-             //GameController::controller_shutdown();
-             //game_controller_thread.stop();
         }
         std::cout << "globalGameController stopped" << std::endl << std::endl;
         Session::ctlr_active.store(false, std::memory_order_release);
@@ -188,14 +167,6 @@ bool ATC::atc_shutdown(){
     else{
         std::cout << "globalGameController not active" << std::endl << std::endl;
     }
-
-
-   //if (game_controller_thread.joinable()) {
-   //     GameController::controller_shutdown();
-   //     game_controller_thread.stop();
-   //}
-   //std::cout << "game_controller_thread stopped" << std::endl;
-
 
     Logging::insertEventLog(EventType::RF_RX_STOP);
     Logging::insertEventLog(EventType::RF_TX_STOP);
@@ -210,17 +181,10 @@ bool ATC::atc_shutdown(){
         std::cout << "Logging Thread stopped" << std::endl << std::endl;
         Session::logger_active.store(false, std::memory_order_release);
         Session::logger_shtdwn.store(false, std::memory_order_release);
-        //Session::logger_finished.store(true, std::memory_order_release);  // Moved to FlightDatabase.cpp stopDBLoop
     }
     else{
         std::cout << "Logging Thread not active" << std::endl << std::endl;
     }
-
-    /*
-    if (!Logging::stopLogger()) {
-        std::cout << "Logging Thread failed to stop" << std::endl; 
-    }
-    */
 
     Session::atc_active.store(false, std::memory_order_release);
     Session::atc_finished.store(true, std::memory_order_release);
@@ -229,56 +193,3 @@ bool ATC::atc_shutdown(){
     return 1;
 
 }
-
-/*
-bool ATC::setAutoControlMode(){
-    //Session::control_mode = ControlMode::AUTO;
-
-    if (Session::control_mode.load(std::memory_order_relaxed) != ControlMode::AUTO) {
-        Session::control_mode.store(ControlMode::AUTO, std::memory_order_release);
-        return 1;
-    }
-    return 0;
-}
-
-bool ATC::setManualControlMode(){
-    //Session::control_mode = ControlMode::MANUAL;
-
-    // Exckudes ControlMode for PARING and RECOVERY
-
-    if (Session::control_mode.load(std::memory_order_relaxed) == ControlMode::ASSIST) {
-        Session::control_mode.store(ControlMode::MANUAL, std::memory_order_release);
-        return 1;
-    }
-    if (Session::control_mode.load(std::memory_order_relaxed) == ControlMode::TAXI) {
-        Session::control_mode.store(ControlMode::MANUAL, std::memory_order_release);
-        return 1;
-    }
-
-    if (Session::control_mode.load(std::memory_order_relaxed) == ControlMode::EMERGENCY) {
-        // Switch to ASSIST instead for easier ControlMode transition
-        Session::control_mode.store(ControlMode::ASSIST, std::memory_order_release);
-        return 1;
-    }
-
-
-    if (Session::control_mode.load(std::memory_order_relaxed) == ControlMode::HOLDING) {
-        // Switch to ASSIST instead for easier ControlMode transition
-        Session::control_mode.store(ControlMode::ASSIST, std::memory_order_release);
-        return 1;
-    }
-    if (Session::control_mode.load(std::memory_order_relaxed) == ControlMode::AUTO) {
-        Session::control_mode.store(ControlMode::HOLDING, std::memory_order_release);
-        return 1;
-    }
-
-    if (Session::control_mode.load(std::memory_order_relaxed) == ControlMode::MANUAL) {
-        return 0;
-    }
-
-    return 0;
-}
-*/
-
-
-

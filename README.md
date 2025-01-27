@@ -1,6 +1,6 @@
 # AI-ATC
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
 
 AI-ATC is an innovative project that integrates artificial intelligence with RC air traffic control, designed to run on a Raspberry Pi 4 Model B 8GB. [WORK IN PROGRESS]
 
@@ -50,7 +50,7 @@ AI-ATC is an innovative project that integrates artificial intelligence with RC 
 
 ## Compilation
 
-1. Create & Navigate to build directory
+1. Create & navigate to build directory
 
        cd AI-ATC
        mkdir build && cd build
@@ -75,7 +75,7 @@ If you encounter any issues, please check the following:
 - Ensure all dependencies are correctly installed
 - Verify that your Raspberry Pi is running the latest OS version
 - Check the console output for any error messages
-- SPIDEV fails to reserve GPIO access on occasional program execution, just try again
+- If SPIDEV fails to reserve GPIO access on occasional program execution, just try again
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
