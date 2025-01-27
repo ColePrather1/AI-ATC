@@ -1,5 +1,6 @@
 
 # Folders
+/build/**
 /dev/**
 /include/dev/**
 /install/dev/**
