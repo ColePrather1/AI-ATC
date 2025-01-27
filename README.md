@@ -1,5 +1,12 @@
 # AI-ATC
 
+
+<p align="center">
+  <a href="https://ColePrather.com">
+    <img alt="AI-ATC Social Media Preview" src="https://raw.githubusercontent.com/ColePrather1/AI-ATC/blob/main/resources/thumbnail.png" width="100%" />
+  </a>
+</p>
+
 ![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 

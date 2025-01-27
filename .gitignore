@@ -2,6 +2,7 @@
 # Folders
 /build/**
 /dev/**
+/extra/**
 /include/dev/**
 /install/dev/**
 /src/dev/**
