@@ -1,14 +1,25 @@
 
 # Folders
-
 /Aircraft/**
 /data/**
 /new_data/**
 /FULL_RF24/**
 /test/**
 
+/include/DataControl/**
+/include/dev/**
+/include/JUNK/**
+/include/
+
 /install/dev/**
 /install/trash/**
+
+/src//**
+/src//**
+/src//**
+/src//**
+/src//**
+/src//**
 
 # Prerequisites
 *.d

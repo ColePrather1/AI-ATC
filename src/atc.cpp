@@ -6,8 +6,7 @@
 #include "Session.h"
 #include "Logging.h"
 #include "GameController.h"
-
-
+#include "threads/atc_threads.h"
 
 // TODO: Implement Plane & GameController Pairing
 bool ATC::pair_pilot(){

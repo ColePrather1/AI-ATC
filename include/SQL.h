@@ -4,38 +4,18 @@
 
 
 #include <sqlite3.h>
-//#include <iostream>
 #include <string>
 #include <filesystem>
 #include <iostream>
-
 //#define MULTI_FILE_MODE false
+
 
 
 // Extras
     //const char* DB_SCHEMA_FILE = "atc_schema.sql";
 
 // Constants
-    /*
-    extern const std::string DB_DIR;
-    extern const std::string DB_DIR_STRING;
-    extern const std::string DB_NAME_BASE;
-    extern const std::string DB_FILE_TYPE;
-    extern const int DB_MAX_FILES;
 
-    extern const int TRANSACTION_MAX_DELAY_MS ;
-    extern const int TRANSACTION_MIN_BATCH_SIZE ;
-    extern const int TRANSACTION_MAX_BATCH_SIZE ;
-    extern const int NUM_SQL_BINDED_STATEMENTS ;         // TEST : check during testing
-    extern const int NUM_SQL_UNBINDED_STATEMENTS_EACH_TABLE ;         // TEST : check during testing
-
-    const bool MULTI_FILE_MODE;
-    const std::string DB_NAME.db;
-    */
-
-    
-    //constexpr std::string DB_DIR = "FLIGHT_LOGS/";
-    //constexpr std::string DB_DIR_STRING = "FLIGHT_LOGS/";
     const std::string DB_DIR_STRING = "";
     const std::string DB_DIR = "";
     const std::string DB_NAME_BASE = "flight_";
@@ -51,20 +31,6 @@
   
 
 // DB Statement Package
-    /*
-    enum class StatementType {
-        ATC_SYSTEM,
-        SYSTEM_STATUS,
-        FLIGHT_STATUS,
-        FLIGHT_VARS,
-        SERVOS,
-        GPS_DATA,
-        IMU_DATA,
-        BARO_DATA,
-        PID_DATA,
-        EVENT_LOG
-    };
-    */
 
     enum class StatementType : int {
         PLANE_STATE,
@@ -90,8 +56,7 @@
 
 
 // Tools
-    //std::string getNextUniqueFilename();
-    //std::string getFilename();
+
 
 inline std::string getNextUniqueFilename() {
     int suffix = 0;

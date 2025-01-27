@@ -1,2 +1,0 @@
-sudo chmod +x install/initial.sh
-./install/initial.sh

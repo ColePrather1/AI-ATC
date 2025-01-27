@@ -51,10 +51,12 @@ AI-ATC is an innovative project that integrates artificial intelligence with RC 
 ## Compilation
 
 1. Create & Navigate to build directory
+
        cd AI-ATC
        mkdir build && cd build
 
 2. Generate build files & compile
+
        cmake ..
        make
 

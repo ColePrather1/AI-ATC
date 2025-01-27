@@ -50,33 +50,4 @@ inline double approx_distance_meters_squared(double lat1, double lon1, double la
 }
 */
 
-/*
-inline void decode_gps_packet(std::vector<float> &vec, const GPSPacket &pkt) {
-    vec[0] = pkt.lat / 1e7;   // Convert latitude to float
-    vec[1] = pkt.lon / 1e7;   // Convert longitude to float
-    vec[2] = pkt.alt ;//* 100;         // Altitude in meters
-}
-
-inline void decode_gps_env_packet(std::vector<float> &vec, const GPSEnvPacket &pkt) {
-    vec[0] = pkt.speed / 1e7;;
-    vec[1] = pkt.sats;
-    vec[2] = pkt.timestamp;
-    vec[3] = pkt.course / 1e7;
-}
-*/
-
-
-/*
-struct GPSData {
-  float lat;
-  float lon;
-  float alt;
-  float speed;
-  int satellites;
-  unsigned long timestamp;
-  char header;
-};
-
-*/
-
 #endif // GPS_H

@@ -12,11 +12,4 @@ inline void sendToPlane(Packet* packet){
     return;
 }
 
-//inline void sendToPlaneBase(Packet packet){
-//    TxPacket* tx_packet(packet);
-//    RadioTx::tx_queue.enqueue(packet);
-//    //RadioTx::tx_queue.enqueue(packet);
-//    return;
-//}
-
 #endif // RADIOTX_H
