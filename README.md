@@ -1,9 +1,9 @@
 # AI-ATC
 AI-ATC is an innovative project that integrates artificial intelligence with RC air traffic control, designed to run on a Raspberry Pi 4 Model B 8GB.
 
-# Requirements
+## Requirements
 
-### Compilation & Execution
+### Compilation & Execution:
 
 - [Raspberry Pi 3/4](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/)
 
@@ -22,7 +22,7 @@ AI-ATC is an innovative project that integrates artificial intelligence with RC 
 - [Git](https://git-scm.com/)
  
 
-## Development:
+### Development:
   
 - [GCC or Clang](https://gcc.gnu.org/) (for compilation)
   
