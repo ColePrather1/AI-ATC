@@ -3,7 +3,7 @@
 
 <p align="center">
   <a href="https://ColePrather.com">
-    <img alt="AI-ATC Social Media Preview" src="https://raw.githubusercontent.com/ColePrather1/AI-ATC/blob/main/resources/thumbnail.png" width="100%" />
+    <img alt="AI-ATC Social Media Preview" src="https://raw.githubusercontent.com/ColePrather1/AI-ATC/resources/thumbnail.png" width="100%" />
   </a>
 </p>
 
