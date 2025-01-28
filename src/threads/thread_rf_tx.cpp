@@ -10,9 +10,6 @@
 #include "EventTypes.h"
 #include <iostream>
 #include <vector>
-//#include "atc_rf.h"
-
-//#include "rf_tx.h"
 
 bool send_packet(Packet* packet, const int send_pipe);
 
@@ -20,7 +17,6 @@ static RF24 radio_tx(22, 0); // CE, CSN pins for transmitting radio
 
 static bool rf_tx_setup(){
     // Initialize transmitting radio
-    //RF24 radio_tx(22, 0); // CE, CSN pins for transmitting radio
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     if (!radio_tx.begin()) {
         Logging::insertEventLog(EventType::RF_TX_FAILED_TO_START);
@@ -32,59 +28,30 @@ static bool rf_tx_setup(){
     radio_tx.setPALevel(RF24_PA_LOW);
     //radio_tx.setAutoAck(false);
     radio_tx.setDataRate(RF24_250KBPS);
+    //radio_tx.setChannel(76);
 
     radio_tx.stopListening();
     radio_tx.openWritingPipe(pipes[0]);     // Initial pipe for comm with Pilot
-    //radio_tx.setChannel(69);
-    //radio_tx.openWritingPipe(pipes[1]);
-    //radio_tx.openWritingPipe(pipes[2]);
+    radio_tx.openWritingPipe(pipes[1]);
+    radio_tx.openWritingPipe(pipes[2]);
     //radio_tx.openWritingPipe(pipes[3]);
     
-
-
     return true;
-
-    //return ATC_RF::tx_setup();
 }
-
-// array of all packets to prevent repeat allocation
-//Packet tx_packets[NUM_FEATS];
-// Queue of pointers to packets to be transmitted
-
-
 
 static void rf_tx_loop(){
     Session::rf_tx_loop_active.store(true, std::memory_order_release);
+    std::atomic<int> rf_tx_active_pipe {0};
     while (Session::rf_tx_loop_active.load(std::memory_order_relaxed) && !Session::quit_flag.load(std::memory_order_relaxed)) {
-        //std::cout << "RF24 TX Thread running in da loop" << std::endl;
         Packet* packet;
         if (!RadioTx::tx_queue.empty()) {          // If Packet ready to send
-            //RadioTx::tx_queue.dequeue(packet);
             int pipe = getPipe(RadioTx::tx_queue.front());
             if (pipe >= 0) {
                 send_packet(RadioTx::tx_queue.dequeue(), pipe);
-                //send_packet(RadioTx::tx_queue.front(), pipe);
-                //RadioTx::tx_queue.dequeue();
-                //usleep(1000);
             }
             else {
                 std::cout << "Invalid pipe, dropping packet" << std::endl;
             }
-            /*
-            if (getPipe(packet) >=0  ) {
-                //send_packet(packet, //getPipe(RadioTx::tx_queue.front()));
-                send_packet(packet, getPipe(packet));
-                usleep(1000);
-            }
-            else {
-                std::cout << "Invalid pipe, dropping packet" << std::endl;
-            } // Error with packet
-            */
-        }
-        else {  // No packets to send
-
-            //usleep(100);
-            //std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
         continue;
@@ -105,40 +72,10 @@ bool send_packet(Packet* packet, int send_pipe) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    //std::vector<uint8_t> payload;
-    //payload.resize(packet->payload_size);
-    //std::copy(packet->payload, packet->payload + packet->payload_size, payload.begin());
-    //packet->payload = payload.data();
-
-    //if (!radio_tx.write(*packet, sizeof(packet))) {
-    //bool result = radio_tx.write(packet->payload.data(), packet->payload_size);
-
-
-    //std::cout << "Packet type (data[0]): " << (int)packet->type << std::endl;
-    //std::cout << "Packet type (data[0]): " << (int)(packet->payload.data()[0]) << std::endl;
-
     bool result = radio_tx.write(packet->payload.data(), sizeof(packet->payload.data()));
 
-    //bool result = radio_tx.write("Hello gangstas", sizeof("Hello gangstas"));
-
-
-    //if (!radio_tx.write("Whats up", 9)) {
     if (!result) {
-    //if (!radio_tx.write(packet->payload.data(), packet->payload_size)) {
         std::cout << "Failed to send packet" << std::endl;
-
-        //std::cout << "Packet type: " << (int)packet->type << std::endl;
-        //if (packet->type == PacketType::MANUAL) {
-        //    std::cout << "Payload size: " << packet->payload_size << std::endl;
-        //    std::cout << "Payload: ";
-        //    for (int i = 0; i < packet->payload_size; i++) {
-        //        std::cout << (int)packet->payload[i] << " ";
-        //    }
-        //    std::cout << std::endl;
-        //}
-
-
-
         return false;
     }
     std::cout << "Packet sent" << std::endl;

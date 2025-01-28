@@ -29,9 +29,7 @@ Packet* incoming_packet;
 //ThreadSafeQueue<std::span<std::byte>> rx_buffer_queue;
 
 static bool rf_rx_setup(){
-    //return rx_setup();
     // Initialize receiving radio
-    //RF24 radio_rx(23, 1); // CE, CSN pins for receiving radio
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     if (!radio_rx.begin()) {
         Logging::insertEventLog(EventType::RF_RX_FAILED_TO_START);
@@ -40,7 +38,7 @@ static bool rf_rx_setup(){
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     radio_rx.openReadingPipe(1, pipes[5]); // Use pipe 5 for receiving
-    radio_rx.setChannel(69);
+    radio_rx.setChannel(76);
     radio_rx.setPALevel(RF24_PA_LOW);
     //radio_rx.setAutoAck(false);
     radio_rx.setDataRate(RF24_250KBPS);
@@ -52,10 +50,6 @@ static bool rf_rx_setup(){
 static void rf_rx_loop(){
     Session::rf_rx_loop_active.store(true, std::memory_order_release);
     while (Session::rf_rx_loop_active.load(std::memory_order_relaxed) && !Session::quit_flag.load(std::memory_order_relaxed)) {
-    
-        //std::cout << "rf_rx_loop has started" << std::endl;
-        //Logging::insertEventLog(EventType::RF_RX_LOOPED);
-        //rx_loop();
         if (radio_rx.available()) {
 
         // Get the size of the packet
@@ -77,8 +71,6 @@ static void rf_rx_loop(){
             radio_rx.read(buffer->data(), sizeof(buffer->data()));
             buffer->shrink_to_fit();
             rx_buffer_queue.enqueue(buffer);    
-            //rx_buffer_queue.enqueue(reinterpret_cast<Packet*>(buffer->data()));
-
         }   
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         continue;

@@ -130,7 +130,6 @@ inline namespace Session {
     inline std::atomic<bool> paired{false}, ctlr_paired{false}, plane_connected{false};
    
 // Radio Parameters
-    inline std::atomic<int> rf_tx_active_pipe {5};
 
 
 // Functions
